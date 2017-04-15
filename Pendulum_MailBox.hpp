@@ -26,6 +26,10 @@
 
 #include "CIMAP.hpp"
 
+// =========
+// NAMESPACE
+// =========
+
 namespace Pendulum_MailBox {
 
     using Antik::Mail::CIMAP;
@@ -36,10 +40,22 @@ namespace Pendulum_MailBox {
 
     constexpr const int kMaxSubjectLine = 80;
 
+    //
+    // Return a vector of mailbox names to be processed
+    //
+    
     std::vector<std::string> fetchMailBoxList(CIMAP& imap, const std::string& mailBoxNameStr, bool bAllMailBoxes);
 
+    //
+    // Return a vector of e-mail  UIDs to be archived (.eml file created).
+    //
+    
     std::vector<uint64_t> fetchMailBoxMessages(CIMAP& imap, std::string& mailBoxStr, std::uint64_t searchUID);
 
+    //
+    // Return string pair of an e-mails subject line and contents.
+    //
+    
     std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t index);
 
 } // namespace Pendulum_MailBox

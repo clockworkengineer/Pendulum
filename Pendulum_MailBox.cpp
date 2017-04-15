@@ -11,11 +11,11 @@
  */
 
 //
-// Module: 
+// Module: Pendulum_MailBox
 //
-// Description:
+// Description: Pendulum IMAP mailbox functionality.
 // 
-// Dependencies:
+// Dependencies: C11++, Classes (CIMAP, CIMAPParse, CMIME)
 //
 
 // =============
@@ -29,7 +29,7 @@
 #include <iostream>
 
 //
-//
+// Pendulum mailbox definitions.
 //
 
 #include "Pendulum_MailBox.hpp"
@@ -50,15 +50,11 @@ namespace Pendulum_MailBox {
     // LOCAL FUNCTIONS
     // ===============
 
-    // ================
-    // PUBLIC FUNCTIONS
-    // ================
-
     //
     // Parse command response and return pointer to parsed data.
     //
 
-    CIMAPParse::COMMANDRESPONSE parseCommandResponse(const std::string& commandStr,
+    static CIMAPParse::COMMANDRESPONSE parseCommandResponse(const std::string& commandStr,
             const std::string& commandResponseStr) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
@@ -84,7 +80,7 @@ namespace Pendulum_MailBox {
     // Send command to IMAP server. At present it checks for any errors and just exits.
     //
 
-    std::string sendCommand(CIMAP& imap, const std::string& mailBoxNameStr,
+    static std::string sendCommand(CIMAP& imap, const std::string& mailBoxNameStr,
             const std::string& commandStr) {
 
         std::string commandResponseStr;
@@ -100,6 +96,10 @@ namespace Pendulum_MailBox {
 
     }
 
+    // ================
+    // PUBLIC FUNCTIONS
+    // ================
+
     //
     // Convert list of comma separated mailbox names / list all mailboxes and place into vector or mailbox name strings.
     //
@@ -107,7 +107,7 @@ namespace Pendulum_MailBox {
     std::vector<std::string> fetchMailBoxList(CIMAP& imap, const std::string& mailBoxNameStr, bool bAllMailBoxes) {
 
         std::vector<std::string> mailBoxList;
-        
+
         if (bAllMailBoxes) {
             std::string commandStr, commandResponseStr;
             CIMAPParse::COMMANDRESPONSE parsedResponse;
@@ -135,9 +135,9 @@ namespace Pendulum_MailBox {
                 mailBoxList.push_back(mailBoxStr);
             }
         }
-        
-        return(mailBoxList);
-        
+
+        return (mailBoxList);
+
     }
 
     std::vector<uint64_t> fetchMailBoxMessages(CIMAP& imap, std::string& mailBoxStr, std::uint64_t searchUID) {

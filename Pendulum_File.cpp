@@ -11,11 +11,11 @@
  */
 
 //
-// Module: 
+// Module: Pendulum_File
 //
-// Description:
+// Description: Pendulum file processing functionality.
 // 
-// Dependencies:
+// Dependencies: C11++, Boost file system and iterators.
 //
 
 // =============
@@ -31,7 +31,7 @@
 #include <sstream>
 
 //
-//
+// Pendulum and Pendulum File definitions
 //
 
 #include "Pendulum.hpp"
@@ -46,7 +46,7 @@
 using Antik::Mail::CIMAPParse;
 
 //
-// Boost file system & iterator definitions
+// Boost file system & range iterator definitions
 //
 
 #include <boost/filesystem.hpp>
@@ -95,7 +95,7 @@ namespace Pendulum_File {
     // prefix; get the UID from this.
     //
 
-    std::uint64_t getHighestUID(const std::string& destFolderStr) {
+    std::uint64_t getNewestUID(const std::string& destFolderStr) {
 
         if (fs::exists(destFolderStr) && fs::is_directory(destFolderStr)) {
 

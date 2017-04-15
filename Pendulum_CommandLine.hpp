@@ -18,6 +18,10 @@
 
 #include <string>
 
+// =========
+// NAMESPACE
+// =========
+
 namespace Pendulum_CommandLine {
 
     //

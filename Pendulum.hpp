@@ -12,6 +12,10 @@
 #ifndef PENDULUM_HPP
 #define PENDULUM_HPP
 
+// =========
+// NAMESPACE
+// =========
+
 namespace Pendulum {
 
     //
@@ -19,6 +23,12 @@ namespace Pendulum {
     //
 
     constexpr const char *kEMLFileExt{".eml"};
+    
+    //
+    // Main processing functionality (archive e-mail).
+    //
+    
+    int archiveEmail(int argc, char** argv);
 
 }
 

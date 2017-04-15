@@ -11,11 +11,11 @@
  */
 
 //
-// Module: 
+// Module: Pendulum_CommandLine
 //
-// Description: 
+// Description: Pendulum program options processing functionality.
 // 
-// Dependencies:
+// Dependencies: C11++, Boost file system and program options libraries.
 //
 
 // =============
@@ -29,13 +29,13 @@
 #include <iostream>
 
 //
-//
+// Pendulum_CommandLine namespace definitions
 //
 
 #include "Pendulum_CommandLine.hpp"
 
 //
-// Boost  file system library & program options processing
+// Boost file system & program options definitions
 //
 
 #include "boost/program_options.hpp" 

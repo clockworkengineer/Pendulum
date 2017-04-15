@@ -58,11 +58,6 @@
 #include "Pendulum_MailBox.hpp"
 #include "Pendulum_File.hpp"
 
-using namespace Pendulum;
-using namespace Pendulum_CommandLine;
-using namespace Pendulum_MailBox;
-using namespace Pendulum_File;
-
 //
 // Antikythera Classes
 //
@@ -70,37 +65,145 @@ using namespace Pendulum_File;
 #include "CIMAP.hpp"
 #include "CIMAPParse.hpp"
 
-using namespace Antik::Mail;
-
 //
 // Boost file system and iterator definitions
 //
 
 #include <boost/filesystem.hpp>
 
-namespace fs = boost::filesystem;
+namespace Pendulum {
 
-// ======================
-// LOCAL TYES/DEFINITIONS
-// ======================
+    using namespace Pendulum_CommandLine;
+    using namespace Pendulum_MailBox;
+    using namespace Pendulum_File;
 
-// ===============
-// LOCAL FUNCTIONS
-// ===============
+    using namespace Antik::Mail;
 
-//
-// Exit with error message/status
-//
+    namespace fs = boost::filesystem;
 
-void exitWithError(const std::string errMsgStr) {
+    // ===============
+    // LOCAL FUNCTIONS
+    // ===============
 
-    // Closedown email, display error and exit.
+    //
+    // Exit with error message/status
+    //
 
-    CIMAP::closedown();
-    std::cerr << errMsgStr << std::endl;
-    exit(EXIT_FAILURE);
+    static void exitWithError(const std::string errMsgStr) {
 
-}
+        // Closedown email, display error and exit.
+
+        CIMAP::closedown();
+        std::cerr << errMsgStr << std::endl;
+        exit(EXIT_FAILURE);
+
+    }
+
+    // ================
+    // PUBLIC FUNCTIONS
+    // ================
+
+    int archiveEmail(int argc, char** argv) {
+
+        try {
+
+            ParamArgData argData;
+            CIMAP imap;
+            std::vector<std::string> mailBoxList;
+
+            // Read in command line parameters and process
+
+            procCmdLine(argc, argv, argData);
+
+            // Initialise CMailIMAP internals
+
+            CIMAP::init();
+
+            // Set mail account user name and password
+
+            imap.setServer(argData.serverURLStr);
+            imap.setUserAndPassword(argData.userNameStr, argData.userPasswordStr);
+
+            // Connect
+
+            std::cout << "Connecting to server [" << argData.serverURLStr << "]" << std::endl;
+
+            imap.connect();
+
+            // Create mailbox list
+
+            mailBoxList = fetchMailBoxList(imap, argData.mailBoxNameStr, argData.bAllMailBoxes);
+
+            for (std::string mailBoxNameStr : mailBoxList) {
+
+                std::uint64_t searchUID = 0;
+                std::string mailBoxFolderStr = mailBoxNameStr;
+
+                // Clear any quotes from mailbox name for folder name
+
+                if (mailBoxFolderStr.front() == '\"') mailBoxFolderStr = mailBoxNameStr.substr(1);
+                if (mailBoxFolderStr.back() == '\"') mailBoxFolderStr.pop_back();
+
+                // Create mailbox destination folder
+
+                fs::path mailBoxPath{argData.destinationFolderStr};
+                mailBoxPath /= mailBoxFolderStr;
+                if (!argData.destinationFolderStr.empty() && !fs::exists(mailBoxPath)) {
+                    std::cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << std::endl;
+                    fs::create_directories(mailBoxPath);
+                }
+
+                // If only updates specified find high UID to search from
+
+                if (argData.bOnlyUpdates) {
+                    searchUID = getNewestUID(mailBoxPath.string());
+                }
+
+                // Get vector of new mail UIDs
+
+                std::vector<std::uint64_t> messageIDs = fetchMailBoxMessages(imap, mailBoxNameStr, searchUID);
+
+                // If messages found then create new EML files.
+
+                if (messageIDs.size()) {
+                    std::cout << "Messages found = " << messageIDs.size() << std::endl;
+                    for (auto index : messageIDs) {
+                        std::pair<std::string, std::string> emailContents = fetchEmailContents(imap, mailBoxNameStr, index);
+                        createEMLFile(emailContents, index, mailBoxPath.string());
+                    }
+                } else {
+                    std::cout << "No messages found." << std::endl;
+                }
+
+            }
+
+            // Disconnect from server
+
+            std::cout << "Disconnecting from server [" << argData.serverURLStr << "]" << std::endl;
+
+            imap.disconnect();
+
+            //
+            // Catch any errors
+            //    
+
+        } catch (CIMAP::Exception &e) {
+            exitWithError(e.what());
+        } catch (CIMAPParse::Exception &e) {
+            exitWithError(e.what());
+        } catch (const fs::filesystem_error & e) {
+            exitWithError(std::string("BOOST file system exception occured: [") + e.what() + "]");
+        } catch (std::exception & e) {
+            exitWithError(std::string("Standard exception occured: [") + e.what() + "]");
+        }
+
+        // IMAP closedown
+
+        CIMAP::closedown();
+
+    }
+
+} // namespace Pendulum
 
 // ============================
 // ===== MAIN ENTRY POINT =====
@@ -108,103 +211,8 @@ void exitWithError(const std::string errMsgStr) {
 
 int main(int argc, char** argv) {
 
-    try {
-
-        ParamArgData argData;
-        CIMAP imap;
-        std::vector<std::string> mailBoxList;
-
-        // Read in command line parameters and process
-
-        procCmdLine(argc, argv, argData);
-
-        // Initialise CMailIMAP internals
-
-        CIMAP::init();
-
-        // Set mail account user name and password
-
-        imap.setServer(argData.serverURLStr);
-        imap.setUserAndPassword(argData.userNameStr, argData.userPasswordStr);
-
-        // Connect
-
-        std::cout << "Connecting to server [" << argData.serverURLStr << "]" << std::endl;
-
-        imap.connect();
-
-        // Create mailbox list
-
-        mailBoxList = fetchMailBoxList(imap, argData.mailBoxNameStr, argData.bAllMailBoxes);
-
-        for (std::string mailBoxNameStr : mailBoxList) {
-
-            std::uint64_t searchUID = 0;
-            std::string mailBoxFolderStr = mailBoxNameStr;
-
-            // Clear any quotes from mailbox name for folder name
-
-            if (mailBoxFolderStr.front() == '\"') mailBoxFolderStr = mailBoxNameStr.substr(1);
-            if (mailBoxFolderStr.back() == '\"') mailBoxFolderStr.pop_back();
-
-            // Create mailbox destination folder
-            
-            fs::path mailBoxPath {argData.destinationFolderStr};
-            mailBoxPath /= mailBoxFolderStr;
-            if (!argData.destinationFolderStr.empty() && !fs::exists(mailBoxPath)) {
-                std::cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << std::endl;
-                fs::create_directories(mailBoxPath);
-            }
-
-            // If only updates specified find high UID to search from
-            
-            if (argData.bOnlyUpdates) {
-                searchUID = getHighestUID(mailBoxPath.string());
-            }
-
-            // Get vector of new mail UIDs
-            
-            std::vector<std::uint64_t> messageIDs = fetchMailBoxMessages(imap, mailBoxNameStr, searchUID);
-
-            // If messages found then create new EML files.
-            
-            if (messageIDs.size()) {
-                std::cout << "Messages found = " << messageIDs.size() << std::endl;
-                for (auto index : messageIDs) {
-                    std::pair<std::string, std::string> emailContents = fetchEmailContents(imap, mailBoxNameStr, index);
-                    createEMLFile(emailContents, index, mailBoxPath.string());
-                }
-            } else {
-                std::cout << "No messages found." << std::endl;
-            }
-
-        }
-
-        // Disconnect from server
-        
-        std::cout << "Disconnecting from server [" << argData.serverURLStr << "]" << std::endl;
-
-        imap.disconnect();
-
-    //
-    // Catch any errors
-    //    
-
-    } catch (CIMAP::Exception &e) {
-        exitWithError(e.what());
-    } catch (CIMAPParse::Exception &e) {
-        exitWithError(e.what());
-    } catch (const fs::filesystem_error & e) {
-        exitWithError(std::string("BOOST file system exception occured: [") + e.what() + "]");
-    } catch (std::exception & e) {
-        exitWithError(std::string("Standard exception occured: [") + e.what() + "]");
-    }
-
-    // IMAP closedown
-
-    CIMAP::closedown();
+    Pendulum::archiveEmail(argc, argv);
 
     exit(EXIT_SUCCESS);
-
 
 }
