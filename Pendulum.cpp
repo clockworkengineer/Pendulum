@@ -16,9 +16,11 @@
 //
 // Description: This is a command line program to log on to an IMAP server and download e-mails
 // from a configured mailbox, command separated mailbox list or all mailboxes for an account.
-// A file (.eml) is created for each e-mail in a folder with the same name as the mailbox; with
-// the files name being a combination of the mails UID/index prefix and the subject name. All 
-// parameters and their meaning are obtained by running the program with the parameter --help.
+// A file (.eml) is created for each e-mail in a folder with the same name as its mailbox; with
+// the files name being a combination of the mails UID/index prefix and the subject name. This
+// program is based on the code for example program ArchiveMailBox but has been refactored heavily
+// to enable easier future development. All parameters and their meaning are obtained by running 
+// he program with the parameter --help.
 //
 // Pendulum Example Application
 // Program Options:
@@ -115,7 +117,7 @@ namespace Pendulum {
 
             procCmdLine(argc, argv, argData);
 
-            // Initialise CMailIMAP internals
+            // Initialise CIMAP internals
 
             CIMAP::init();
 
@@ -153,7 +155,7 @@ namespace Pendulum {
                     fs::create_directories(mailBoxPath);
                 }
 
-                // If only updates specified find high UID to search from
+                // If only updates specified find highest UID to search from
 
                 if (argData.bOnlyUpdates) {
                     searchUID = getNewestUID(mailBoxPath.string());
