@@ -15,7 +15,10 @@
 //
 // Description: Pendulum IMAP mailbox functionality.
 // 
-// Dependencies: C11++, Classes (CIMAP, CIMAPParse, CMIME)
+// Dependencies:
+// 
+// C11++              : Use of C11++ features.
+// Antikythera Classes: CIMAP, CIMAPParse, CMIME.
 //
 
 // =============

@@ -40,7 +40,7 @@
 // Dependencies: 
 // 
 // C11++              : Use of C11++ features.
-// Antikythera Classes: CFileMIME, CMailIMAP, CMailIMAPParse.
+// Antikythera Classes: CMIME, CIMAP, CIMAPParse.
 // Linux              : Target plaform
 // Boost              : File system, program option, iterator.
 //

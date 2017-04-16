@@ -31,6 +31,10 @@
 // =========
 
 namespace Pendulum_MailBox {
+    
+    // =======
+    // IMPORTS
+    // =======
 
     using Antik::Mail::CIMAP;
 

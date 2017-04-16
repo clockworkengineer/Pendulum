@@ -15,7 +15,11 @@
 //
 // Description: Pendulum file processing functionality.
 // 
-// Dependencies: C11++, Boost file system and iterators.
+// Dependencies:
+// 
+// C11++              : Use of C11++ features.
+// Antikythera Classes: CIMAPParse.
+// Boost              : File system, iterator.
 //
 
 // =============

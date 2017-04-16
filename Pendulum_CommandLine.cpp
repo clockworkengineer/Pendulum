@@ -15,7 +15,10 @@
 //
 // Description: Pendulum program options processing functionality.
 // 
-// Dependencies: C11++, Boost file system and program options libraries.
+// Dependencies: 
+// 
+// C11++              : Use of C11++ features.
+// Boost              : File system, program option.
 //
 
 // =============
