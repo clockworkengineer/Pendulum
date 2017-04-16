@@ -18,7 +18,7 @@
 // from a configured mailbox, command separated mailbox list or all mailboxes for an account.
 // A file (.eml) is created for each e-mail in a folder with the same name as its mailbox; with
 // the files name being a combination of the mails UID/index prefix and the subject name. This
-// program is based on the code for example program ArchiveMailBox but has been refactored heavily
+// program is based on the code for example program ArchiveMailBox but has been re-factored heavily
 // to enable easier future development. All parameters and their meaning are obtained by running 
 // he program with the parameter --help.
 //
@@ -37,8 +37,12 @@
 // Note: MIME encoded words in the email subject line are decoded to the best ASCII fit
 // available.
 // 
-// Dependencies: C11++, Classes (CFileMIME, CMailIMAP, CMailIMAPParse, CMailIMAPBodyStruct),
-//               Linux, Boost C++ Libraries.
+// Dependencies: 
+// 
+// C11++              : Use of C11++ features.
+// Antikythera Classes: CFileMIME, CMailIMAP, CMailIMAPParse.
+// Linux              : Target plaform
+// Boost              : File system, program option, iterator.
 //
 
 // =============
@@ -73,8 +77,16 @@
 
 #include <boost/filesystem.hpp>
 
+// =========
+// NAMESPACE
+// =========
+
 namespace Pendulum {
 
+    // =======
+    // IMPORTS
+    // =======
+    
     using namespace Pendulum_CommandLine;
     using namespace Pendulum_MailBox;
     using namespace Pendulum_File;

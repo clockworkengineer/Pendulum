@@ -41,10 +41,19 @@
 #include "CIMAPParse.hpp"
 #include "CMIME.hpp"
 
-using namespace Antik::Mail;
-using namespace Antik::File;
+
+// =========
+// NAMESPACE
+// =========
 
 namespace Pendulum_MailBox {
+
+    // =======
+    // IMPORTS
+    // =======
+
+    using namespace Antik::Mail;
+    using namespace Antik::File;
 
     // ===============
     // LOCAL FUNCTIONS
@@ -101,7 +110,8 @@ namespace Pendulum_MailBox {
     // ================
 
     //
-    // Convert list of comma separated mailbox names / list all mailboxes and place into vector or mailbox name strings.
+    // Convert list of comma separated mailbox names / list all mailboxes and 
+    // place into vector of mailbox name strings to be returned.
     //
 
     std::vector<std::string> fetchMailBoxList(CIMAP& imap, const std::string& mailBoxNameStr, bool bAllMailBoxes) {
@@ -140,6 +150,11 @@ namespace Pendulum_MailBox {
 
     }
 
+    //
+    // Search a mailbox for e-mails with UIDs greater than searchUID and return
+    // a vector of their  UIDs.
+    //
+
     std::vector<uint64_t> fetchMailBoxMessages(CIMAP& imap, std::string& mailBoxStr, std::uint64_t searchUID) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
@@ -175,6 +190,10 @@ namespace Pendulum_MailBox {
         return (parsedResponse->indexes);
 
     }
+
+    //
+    // For a given message UID fetch its subject line and body and return as a pair.
+    //
 
     std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t index) {
 
@@ -213,4 +232,3 @@ namespace Pendulum_MailBox {
     }
 
 } // namespace Pendulum_MailBox
-

@@ -41,10 +41,18 @@
 #include "boost/program_options.hpp" 
 #include <boost/filesystem.hpp>
 
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
+// =========
+// NAMESPACE
+// =========
 
 namespace Pendulum_CommandLine {
+
+    // =======
+    // IMPORTS
+    // =======
+
+    namespace po = boost::program_options;
+    namespace fs = boost::filesystem;
 
     // ===============
     // LOCAL FUNCTIONS

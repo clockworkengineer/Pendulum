@@ -52,10 +52,18 @@ using Antik::Mail::CIMAPParse;
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 
-namespace fs = boost::filesystem;
+// =========
+// NAMESPACE
+// =========
 
 namespace Pendulum_File {
 
+    // =======
+    // IMPORTS
+    // =======
+
+    namespace fs = boost::filesystem;
+    
     // ===============
     // LOCAL FUNCTIONS
     // ===============
