@@ -63,21 +63,29 @@ namespace Pendulum_MailBox {
     // ===============
 
     //
-    // Parse command response and return pointer to parsed data.
+    // Send command to IMAP server, parse received response and return it.
+    // At present it catches any thrown exceptions reports them then re-throws.
     //
 
-    static CIMAPParse::COMMANDRESPONSE parseCommandResponse(const std::string& commandStr,
-            const std::string& commandResponseStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommand(CIMAP& imap, const std::string& mailBoxNameStr,
+            const std::string& commandStr) {
 
+        std::string commandResponseStr;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
         try {
+            commandResponseStr = imap.sendCommand(commandStr);
             parsedResponse = CIMAPParse::parseResponse(commandResponseStr);
+        } catch (CIMAP::Exception &e) {
+            std::cerr << "IMAP ERROR: Need to reconnect to server" << std::endl;
+            throw (e);
         } catch (CIMAPParse::Exception &e) {
             std::cerr << "RESPONSE IN ERRROR: [" << commandResponseStr << "]" << std::endl;
             throw (e);
         }
 
+        // Report server disconnect or command error
+        
         if (parsedResponse->bBYESent) {
             throw CIMAP::Exception("Received BYE from server: " + parsedResponse->errorMessageStr);
         } else if (parsedResponse->status != CIMAPParse::RespCode::OK) {
@@ -85,26 +93,6 @@ namespace Pendulum_MailBox {
         }
 
         return (parsedResponse);
-
-    }
-
-    //
-    // Send command to IMAP server. At present it checks for any errors and just exits.
-    //
-
-    static std::string sendCommand(CIMAP& imap, const std::string& mailBoxNameStr,
-            const std::string& commandStr) {
-
-        std::string commandResponseStr;
-
-        try {
-            commandResponseStr = imap.sendCommand(commandStr);
-        } catch (CIMAP::Exception &e) {
-            std::cerr << "IMAP ERROR: Need to reconnect to server" << std::endl;
-            throw (e);
-        }
-
-        return (commandResponseStr);
 
     }
 
@@ -122,17 +110,19 @@ namespace Pendulum_MailBox {
         std::vector<std::string> mailBoxList;
 
         if (bAllMailBoxes) {
-            std::string commandStr, commandResponseStr;
+            
+            std::string commandStr;
             CIMAPParse::COMMANDRESPONSE parsedResponse;
 
             commandStr = "LIST \"\" *";
-            commandResponseStr = sendCommand(imap, "", commandStr);
-            parsedResponse = parseCommandResponse(commandStr, commandResponseStr);
+            parsedResponse = sendCommand(imap, "", commandStr);
 
             if (parsedResponse) {
 
                 for (auto mailBoxEntry : parsedResponse->mailBoxList) {
-                    if (mailBoxEntry.mailBoxNameStr.front() == ' ') mailBoxEntry.mailBoxNameStr = mailBoxEntry.mailBoxNameStr.substr(1);
+                    if (mailBoxEntry.mailBoxNameStr.front() == ' ') { 
+                        mailBoxEntry.mailBoxNameStr = mailBoxEntry.mailBoxNameStr.substr(1);
+                    }
                     if (mailBoxEntry.attributesStr.find("\\Noselect") == std::string::npos) {
                         mailBoxList.push_back(mailBoxEntry.mailBoxNameStr);
                     }
@@ -141,12 +131,15 @@ namespace Pendulum_MailBox {
             }
 
         } else {
-            std::istringstream mailBoxStream(mailBoxNameStr);
+            
+            std::istringstream mailBoxStream { mailBoxNameStr };
+            
             for (std::string mailBoxStr; std::getline(mailBoxStream, mailBoxStr, ',');) {
                 mailBoxStr = mailBoxStr.substr(mailBoxStr.find_first_not_of(' '));
                 mailBoxStr = mailBoxStr.substr(0, mailBoxStr.find_last_not_of(' ') + 1);
                 mailBoxList.push_back(mailBoxStr);
             }
+            
         }
 
         return (mailBoxList);
@@ -162,16 +155,14 @@ namespace Pendulum_MailBox {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
         std::string commandStr;
-        std::string commandResponseStr;
-        std::vector<uint64_t> messageID;
+        std::vector<uint64_t> messageID { 0 };
 
         std::cout << "MAIL BOX [" << mailBoxStr << "]" << std::endl;
 
         // SELECT mailbox
 
         commandStr = "SELECT " + mailBoxStr;
-        commandResponseStr = sendCommand(imap, mailBoxStr, commandStr);
-        parsedResponse = parseCommandResponse(commandStr, commandResponseStr);
+        parsedResponse = sendCommand(imap, mailBoxStr, commandStr);
 
         // SEARCH for all present email and then create an archive for them.
 
@@ -182,8 +173,7 @@ namespace Pendulum_MailBox {
             commandStr = "UID SEARCH 1:*";
         }
 
-        commandResponseStr = sendCommand(imap, mailBoxStr, commandStr);
-        parsedResponse = parseCommandResponse(commandStr, commandResponseStr);
+        parsedResponse = sendCommand(imap, mailBoxStr, commandStr);
         if (parsedResponse) {
             if ((parsedResponse->indexes.size() == 1) && (parsedResponse->indexes[0] == searchUID)) {
                 parsedResponse->indexes.clear();
@@ -198,14 +188,15 @@ namespace Pendulum_MailBox {
     // For a given message UID fetch its subject line and body and return as a pair.
     //
 
-    std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t index) {
+    std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t uid) {
 
-        std::string commandStr, commandResponseStr, subject, emailBody;
+        std::string commandStr;
+        std::string subjectStr;
+        std::string emailBodyStr;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
-        commandStr = "UID FETCH " + std::to_string(index) + " (BODY[] BODY[HEADER.FIELDS (SUBJECT)])";
-        commandResponseStr = sendCommand(imap, mailBoxNameStr, commandStr);
-        parsedResponse = parseCommandResponse(commandStr, commandResponseStr);
+        commandStr = "UID FETCH " + std::to_string(uid) + " (BODY[] BODY[HEADER.FIELDS (SUBJECT)])";
+        parsedResponse = sendCommand(imap, mailBoxNameStr, commandStr);
 
         if (parsedResponse) {
 
@@ -213,15 +204,15 @@ namespace Pendulum_MailBox {
                 std::cout << "EMAIL MESSAGE NO. [" << fetchEntry.index << "]" << std::endl;
                 for (auto resp : fetchEntry.responseMap) {
                     if (resp.first.find("BODY[]") == 0) {
-                        emailBody = resp.second;
+                        emailBodyStr = resp.second;
                     } else if (resp.first.find("BODY[HEADER.FIELDS (SUBJECT)]") == 0) {
                         if (resp.second.find("Subject:") != std::string::npos) { // Contains "Subject:"
-                            subject = resp.second.substr(8);
-                            subject = CMIME::convertMIMEStringToASCII(subject);
-                            if (subject.length() > kMaxSubjectLine) { // Truncate for file name
-                                subject = subject.substr(0, kMaxSubjectLine);
+                            subjectStr = resp.second.substr(8);
+                            subjectStr = CMIME::convertMIMEStringToASCII(subjectStr);
+                            if (subjectStr.length() > kMaxSubjectLine) { // Truncate for file name
+                                subjectStr = subjectStr.substr(0, kMaxSubjectLine);
                             }
-                            for (auto &ch : subject) { // Remove all but alpha numeric from subject
+                            for (auto &ch : subjectStr) { // Remove all but alpha numeric from subject
                                 if (!std::isalnum(ch)) ch = ' ';
                             }
                         }
@@ -230,7 +221,7 @@ namespace Pendulum_MailBox {
             }
         }
 
-        return (std::make_pair(subject, emailBody));
+        return (std::make_pair(subjectStr, emailBodyStr));
 
     }
 

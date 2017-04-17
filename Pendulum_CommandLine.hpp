@@ -35,12 +35,12 @@ namespace Pendulum_CommandLine {
         std::string mailBoxNameStr;         // Mailbox name
         std::string destinationFolderStr;   // Destination folder for attachments
         std::string configFileNameStr;      // Configuration file name
-        bool bOnlyUpdates { false };        // = true search since last .eml archived
+        bool bOnlyUpdates { false };        // = true search date since last .eml archived
         bool bAllMailBoxes { false };       // = true archive all mailboxes
 
     };
 
-    void procCmdLine(int argc, char** argv, ParamArgData &argData);
+    void fetchCommandLineArgs(int argc, char** argv, ParamArgData &argData);
 
 } // namespace Pendulum_CommandLine
 

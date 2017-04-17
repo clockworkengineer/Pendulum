@@ -18,7 +18,7 @@
 // Dependencies:
 // 
 // C11++              : Use of C11++ features.
-// Antikythera Classes: CIMAPParse.
+// Antikythera Classes: CMailIMAPParse.
 // Boost              : File system, iterator.
 //
 
@@ -83,11 +83,11 @@ namespace Pendulum_File {
     void createEMLFile(const std::pair<std::string, std::string>& emailContents, std::uint64_t index, const std::string& destFolderStr) {
 
         if (!emailContents.second.empty()) {
-            fs::path fullFilePath = destFolderStr;
+            fs::path fullFilePath { destFolderStr };
             fullFilePath /= "(" + std::to_string(index) + ") " + emailContents.first + Pendulum::kEMLFileExt;
             if (!fs::exists(fullFilePath)) {
-                std::istringstream emailBodyStream(emailContents.second);
-                std::ofstream emlFileStream(fullFilePath.string(), std::ios::binary);
+                std::istringstream emailBodyStream { emailContents.second };
+                std::ofstream emlFileStream { fullFilePath.string(), std::ios::binary };
                 if (emlFileStream.is_open()) {
                     std::cout << "Creating [" << fullFilePath.native() << "]" << std::endl;
                     for (std::string lineStr; std::getline(emailBodyStream, lineStr, '\n');) {
@@ -103,27 +103,28 @@ namespace Pendulum_File {
     }
 
     //
-    // Find the UID on the last message saved and search from that. Each saved .eml file has a "(UID)"
-    // prefix; get the UID from this.
+    // Find the Index on the last message saved and search from that. Each saved .eml file has a "(Index)"
+    // prefix; get the Index from this.
     //
 
-    std::uint64_t getNewestUID(const std::string& destFolderStr) {
+    std::uint64_t getNewestIndex(const std::string& destFolderStr) {
 
         if (fs::exists(destFolderStr) && fs::is_directory(destFolderStr)) {
 
-            std::uint64_t highestUID = 1, currentUID = 0;
+            std::uint64_t highestIndex { 1 };
+            std::uint64_t currentIndex { 0 };
             fs::path destPath { destFolderStr };
             
             for (auto& entry : boost::make_iterator_range(fs::directory_iterator(destPath),{})) {
                 if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExt) == 0)) {
-                    currentUID = std::strtoull(CIMAPParse::stringBetween(entry.path().filename().string(), '(', ')').c_str(), nullptr, 10);
-                    if (currentUID > highestUID) {
-                        highestUID = currentUID;
+                    currentIndex = std::strtoull(CIMAPParse::stringBetween(entry.path().filename().string(), '(', ')').c_str(), nullptr, 10);
+                    if (currentIndex > highestIndex) {
+                        highestIndex = currentIndex;
                     }
                 }
             }
 
-            return (highestUID);
+            return (highestIndex);
 
         }
 

@@ -41,7 +41,7 @@
 // 
 // C11++              : Use of C11++ features.
 // Antikythera Classes: CMIME, CIMAP, CIMAPParse.
-// Linux              : Target plaform
+// Linux              : Target platform
 // Boost              : File system, program option, iterator.
 //
 
@@ -127,7 +127,7 @@ namespace Pendulum {
 
             // Read in command line parameters and process
 
-            procCmdLine(argc, argv, argData);
+            fetchCommandLineArgs(argc, argv, argData);
 
             // Initialise CIMAP internals
 
@@ -150,8 +150,8 @@ namespace Pendulum {
 
             for (std::string mailBoxNameStr : mailBoxList) {
 
-                std::uint64_t searchUID = 0;
-                std::string mailBoxFolderStr = mailBoxNameStr;
+                std::uint64_t searchUID { 0 };
+                std::string mailBoxFolderStr { mailBoxNameStr };
 
                 // Clear any quotes from mailbox name for folder name
 
@@ -170,7 +170,7 @@ namespace Pendulum {
                 // If only updates specified find highest UID to search from
 
                 if (argData.bOnlyUpdates) {
-                    searchUID = getNewestUID(mailBoxPath.string());
+                    searchUID = getNewestIndex(mailBoxPath.string());
                 }
 
                 // Get vector of new mail UIDs

@@ -18,7 +18,7 @@
 // Dependencies: 
 // 
 // C11++              : Use of C11++ features.
-// Boost              : File system, program option.
+// Boost              : File system, program option,.
 //
 
 // =============
@@ -86,7 +86,7 @@ namespace Pendulum_CommandLine {
     // Read in and process command line arguments using boost.
     //
 
-    void procCmdLine(int argc, char** argv, ParamArgData &argData) {
+    void fetchCommandLineArgs(int argc, char** argv, ParamArgData &argData) {
 
 
         // Define and parse the program options
@@ -102,7 +102,7 @@ namespace Pendulum_CommandLine {
 
         addCommonOptions(configFile, argData);
 
-        po::variables_map vm;
+        po::variables_map vm {};
 
         try {
 

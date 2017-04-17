@@ -60,7 +60,7 @@ namespace Pendulum_MailBox {
     // Return string pair of an e-mails subject line and contents.
     //
     
-    std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t index);
+    std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t uid);
 
 } // namespace Pendulum_MailBox
 
