@@ -54,6 +54,8 @@ namespace Pendulum_CommandLine {
     // IMPORTS
     // =======
 
+    using namespace std;
+        
     namespace po = boost::program_options;
     namespace fs = boost::filesystem;
 
@@ -68,11 +70,11 @@ namespace Pendulum_CommandLine {
     static void addCommonOptions(po::options_description& commonOptions, ParamArgData& argData) {
 
         commonOptions.add_options()
-                ("server,s", po::value<std::string>(&argData.serverURLStr)->required(), "IMAP Server URL and port")
-                ("user,u", po::value<std::string>(&argData.userNameStr)->required(), "Account username")
-                ("password,p", po::value<std::string>(&argData.userPasswordStr)->required(), "User password")
-                ("mailbox,m", po::value<std::string>(&argData.mailBoxNameStr)->required(), "Mailbox name")
-                ("destination,d", po::value<std::string>(&argData.destinationFolderStr)->required(), "Destination for attachments")
+                ("server,s", po::value<string>(&argData.serverURLStr)->required(), "IMAP Server URL and port")
+                ("user,u", po::value<string>(&argData.userNameStr)->required(), "Account username")
+                ("password,p", po::value<string>(&argData.userPasswordStr)->required(), "User password")
+                ("mailbox,m", po::value<string>(&argData.mailBoxNameStr)->required(), "Mailbox name")
+                ("destination,d", po::value<string>(&argData.destinationFolderStr)->required(), "Destination for attachments")
                 ("updates,u", "Search since last file archived.")
                 ("all,a", "Download files for all mailboxes.");
 
@@ -94,7 +96,7 @@ namespace Pendulum_CommandLine {
         po::options_description commandLine("Program Options");
         commandLine.add_options()
                 ("help", "Print help messages")
-                ("config,c", po::value<std::string>(&argData.configFileNameStr)->required(), "Config File Name");
+                ("config,c", po::value<string>(&argData.configFileNameStr)->required(), "Config File Name");
 
         addCommonOptions(commandLine, argData);
 
@@ -113,13 +115,13 @@ namespace Pendulum_CommandLine {
             // Display options and exit with success
 
             if (vm.count("help")) {
-                std::cout << "Pendulum Example Application" << std::endl << commandLine << std::endl;
+                cout << "Pendulum Example Application" << endl << commandLine << endl;
                 exit(EXIT_SUCCESS);
             }
 
             if (vm.count("config")) {
-                if (fs::exists(vm["config"].as<std::string>().c_str())) {
-                    std::ifstream ifs{vm["config"].as<std::string>().c_str()};
+                if (fs::exists(vm["config"].as<string>().c_str())) {
+                    ifstream ifs{vm["config"].as<string>().c_str()};
                     if (ifs) {
                         po::store(po::parse_config_file(ifs, configFile), vm);
                     }
@@ -143,8 +145,8 @@ namespace Pendulum_CommandLine {
             po::notify(vm);
 
         } catch (po::error& e) {
-            std::cerr << "Pendulum Error: " << e.what() << std::endl << std::endl;
-            std::cerr << commandLine << std::endl;
+            cerr << "Pendulum Error: " << e.what() << endl << endl;
+            cerr << commandLine << endl;
             exit(EXIT_FAILURE);
         }
 

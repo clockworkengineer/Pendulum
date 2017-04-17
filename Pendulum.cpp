@@ -87,6 +87,8 @@ namespace Pendulum {
     // IMPORTS
     // =======
     
+    using namespace std;
+    
     using namespace Pendulum_CommandLine;
     using namespace Pendulum_MailBox;
     using namespace Pendulum_File;
@@ -103,12 +105,12 @@ namespace Pendulum {
     // Exit with error message/status
     //
 
-    static void exitWithError(const std::string errMsgStr) {
+    static void exitWithError(const string errMsgStr) {
 
         // Closedown email, display error and exit.
 
         CIMAP::closedown();
-        std::cerr << errMsgStr << std::endl;
+        cerr << errMsgStr << endl;
         exit(EXIT_FAILURE);
 
     }
@@ -121,37 +123,37 @@ namespace Pendulum {
 
         try {
 
-            ParamArgData argData;
-            CIMAP imap;
-            std::vector<std::string> mailBoxList;
+            ParamArgData argumentData;
+            CIMAP imapServer;
+            vector<string> mailBoxList;
 
             // Read in command line parameters and process
 
-            fetchCommandLineArgs(argc, argv, argData);
+            fetchCommandLineArgs(argc, argv, argumentData);
 
-            // Initialise CIMAP internals
+            // Initialize CIMAP internals
 
             CIMAP::init();
 
             // Set mail account user name and password
 
-            imap.setServer(argData.serverURLStr);
-            imap.setUserAndPassword(argData.userNameStr, argData.userPasswordStr);
+            imapServer.setServer(argumentData.serverURLStr);
+            imapServer.setUserAndPassword(argumentData.userNameStr, argumentData.userPasswordStr);
 
             // Connect
 
-            std::cout << "Connecting to server [" << argData.serverURLStr << "]" << std::endl;
+            cout << "Connecting to server [" << argumentData.serverURLStr << "]" << endl;
 
-            imap.connect();
+            imapServer.connect();
 
             // Create mailbox list
 
-            mailBoxList = fetchMailBoxList(imap, argData.mailBoxNameStr, argData.bAllMailBoxes);
+            mailBoxList = fetchMailBoxList(imapServer, argumentData.mailBoxNameStr, argumentData.bAllMailBoxes);
 
-            for (std::string mailBoxNameStr : mailBoxList) {
+            for (string mailBoxNameStr : mailBoxList) {
 
-                std::uint64_t searchUID { 0 };
-                std::string mailBoxFolderStr { mailBoxNameStr };
+                uint64_t searchUID { 0 };
+                string mailBoxFolderStr { mailBoxNameStr };
 
                 // Clear any quotes from mailbox name for folder name
 
@@ -160,55 +162,55 @@ namespace Pendulum {
 
                 // Create mailbox destination folder
 
-                fs::path mailBoxPath{argData.destinationFolderStr};
+                fs::path mailBoxPath{argumentData.destinationFolderStr};
                 mailBoxPath /= mailBoxFolderStr;
-                if (!argData.destinationFolderStr.empty() && !fs::exists(mailBoxPath)) {
-                    std::cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << std::endl;
+                if (!argumentData.destinationFolderStr.empty() && !fs::exists(mailBoxPath)) {
+                    cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << endl;
                     fs::create_directories(mailBoxPath);
                 }
 
                 // If only updates specified find highest UID to search from
 
-                if (argData.bOnlyUpdates) {
+                if (argumentData.bOnlyUpdates) {
                     searchUID = getNewestIndex(mailBoxPath.string());
                 }
 
                 // Get vector of new mail UIDs
 
-                std::vector<std::uint64_t> messageIDs = fetchMailBoxMessages(imap, mailBoxNameStr, searchUID);
+                vector<uint64_t> messageIDs = fetchMailBoxMessages(imapServer, mailBoxNameStr, searchUID);
 
                 // If messages found then create new EML files.
 
                 if (messageIDs.size()) {
-                    std::cout << "Messages found = " << messageIDs.size() << std::endl;
+                    cout << "Messages found = " << messageIDs.size() << endl;
                     for (auto index : messageIDs) {
-                        std::pair<std::string, std::string> emailContents = fetchEmailContents(imap, mailBoxNameStr, index);
+                        pair<string, string> emailContents = fetchEmailContents(imapServer, mailBoxNameStr, index);
                         createEMLFile(emailContents, index, mailBoxPath.string());
                     }
                 } else {
-                    std::cout << "No messages found." << std::endl;
+                    cout << "No messages found." << endl;
                 }
 
             }
 
             // Disconnect from server
 
-            std::cout << "Disconnecting from server [" << argData.serverURLStr << "]" << std::endl;
+            cout << "Disconnecting from server [" << argumentData.serverURLStr << "]" << endl;
 
-            imap.disconnect();
+            imapServer.disconnect();
 
-            //
-            // Catch any errors
-            //    
+        //
+        // Catch any errors
+        //    
 
         } catch (CIMAP::Exception &e) {
             exitWithError(e.what());
         } catch (CIMAPParse::Exception &e) {
             exitWithError(e.what());
         } catch (const fs::filesystem_error & e) {
-            exitWithError(std::string("BOOST file system exception occured: [") + e.what() + "]");
-        } catch (std::exception & e) {
-            exitWithError(std::string("Standard exception occured: [") + e.what() + "]");
+            exitWithError(string("BOOST file system exception occured: [") + e.what() + "]");
+        } catch (exception & e) {
+            exitWithError(string("Standard exception occured: [") + e.what() + "]");
         }
 
         // IMAP closedown

@@ -47,8 +47,6 @@
 
 #include "CIMAPParse.hpp"
 
-using Antik::Mail::CIMAPParse;
-
 //
 // Boost file system & range iterator definitions
 //
@@ -66,6 +64,10 @@ namespace Pendulum_File {
     // IMPORTS
     // =======
 
+    using namespace std;
+    
+    using Antik::Mail::CIMAPParse;
+    
     namespace fs = boost::filesystem;
     
     // ===============
@@ -80,22 +82,22 @@ namespace Pendulum_File {
     // Create .eml for downloaded email.
     //
 
-    void createEMLFile(const std::pair<std::string, std::string>& emailContents, std::uint64_t index, const std::string& destFolderStr) {
+    void createEMLFile(const pair<string, string>& emailContents, uint64_t index, const string& destFolderStr) {
 
         if (!emailContents.second.empty()) {
             fs::path fullFilePath { destFolderStr };
-            fullFilePath /= "(" + std::to_string(index) + ") " + emailContents.first + Pendulum::kEMLFileExt;
+            fullFilePath /= "(" + to_string(index) + ") " + emailContents.first + Pendulum::kEMLFileExt;
             if (!fs::exists(fullFilePath)) {
-                std::istringstream emailBodyStream { emailContents.second };
-                std::ofstream emlFileStream { fullFilePath.string(), std::ios::binary };
+                istringstream emailBodyStream { emailContents.second };
+                ofstream emlFileStream { fullFilePath.string(), ios::binary };
                 if (emlFileStream.is_open()) {
-                    std::cout << "Creating [" << fullFilePath.native() << "]" << std::endl;
-                    for (std::string lineStr; std::getline(emailBodyStream, lineStr, '\n');) {
+                    cout << "Creating [" << fullFilePath.native() << "]" << endl;
+                    for (string lineStr; getline(emailBodyStream, lineStr, '\n');) {
                         lineStr.push_back('\n');
                         emlFileStream.write(&lineStr[0], lineStr.length());
                     }
                 } else {
-                    std::cerr << "Failed to create file [" << fullFilePath << "]" << std::endl;
+                    cerr << "Failed to create file [" << fullFilePath << "]" << endl;
                 }
             }
         }
@@ -107,17 +109,17 @@ namespace Pendulum_File {
     // prefix; get the Index from this.
     //
 
-    std::uint64_t getNewestIndex(const std::string& destFolderStr) {
+    uint64_t getNewestIndex(const string& destFolderStr) {
 
         if (fs::exists(destFolderStr) && fs::is_directory(destFolderStr)) {
 
-            std::uint64_t highestIndex { 1 };
-            std::uint64_t currentIndex { 0 };
+            uint64_t highestIndex { 1 };
+            uint64_t currentIndex { 0 };
             fs::path destPath { destFolderStr };
             
             for (auto& entry : boost::make_iterator_range(fs::directory_iterator(destPath),{})) {
                 if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExt) == 0)) {
-                    currentIndex = std::strtoull(CIMAPParse::stringBetween(entry.path().filename().string(), '(', ')').c_str(), nullptr, 10);
+                    currentIndex = strtoull(CIMAPParse::stringBetween(entry.path().filename().string(), '(', ')').c_str(), nullptr, 10);
                     if (currentIndex > highestIndex) {
                         highestIndex = currentIndex;
                     }

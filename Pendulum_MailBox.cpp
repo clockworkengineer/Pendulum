@@ -44,7 +44,6 @@
 #include "CIMAPParse.hpp"
 #include "CMIME.hpp"
 
-
 // =========
 // NAMESPACE
 // =========
@@ -55,6 +54,8 @@ namespace Pendulum_MailBox {
     // IMPORTS
     // =======
 
+    using namespace std;
+    
     using namespace Antik::Mail;
     using namespace Antik::File;
 
@@ -67,20 +68,20 @@ namespace Pendulum_MailBox {
     // At present it catches any thrown exceptions reports them then re-throws.
     //
 
-    static CIMAPParse::COMMANDRESPONSE sendCommand(CIMAP& imap, const std::string& mailBoxNameStr,
-            const std::string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommand(CIMAP& imap, const string& mailBoxNameStr,
+            const string& commandStr) {
 
-        std::string commandResponseStr;
+        string commandResponseStr;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
         try {
             commandResponseStr = imap.sendCommand(commandStr);
             parsedResponse = CIMAPParse::parseResponse(commandResponseStr);
         } catch (CIMAP::Exception &e) {
-            std::cerr << "IMAP ERROR: Need to reconnect to server" << std::endl;
+            cerr << "IMAP ERROR: Need to reconnect to server" << endl;
             throw (e);
         } catch (CIMAPParse::Exception &e) {
-            std::cerr << "RESPONSE IN ERRROR: [" << commandResponseStr << "]" << std::endl;
+            cerr << "RESPONSE IN ERRROR: [" << commandResponseStr << "]" << endl;
             throw (e);
         }
 
@@ -105,13 +106,13 @@ namespace Pendulum_MailBox {
     // place into vector of mailbox name strings to be returned.
     //
 
-    std::vector<std::string> fetchMailBoxList(CIMAP& imap, const std::string& mailBoxNameStr, bool bAllMailBoxes) {
+    vector<string> fetchMailBoxList(CIMAP& imap, const string& mailBoxNameStr, bool bAllMailBoxes) {
 
-        std::vector<std::string> mailBoxList;
+        vector<string> mailBoxList;
 
         if (bAllMailBoxes) {
             
-            std::string commandStr;
+            string commandStr;
             CIMAPParse::COMMANDRESPONSE parsedResponse;
 
             commandStr = "LIST \"\" *";
@@ -123,7 +124,7 @@ namespace Pendulum_MailBox {
                     if (mailBoxEntry.mailBoxNameStr.front() == ' ') { 
                         mailBoxEntry.mailBoxNameStr = mailBoxEntry.mailBoxNameStr.substr(1);
                     }
-                    if (mailBoxEntry.attributesStr.find("\\Noselect") == std::string::npos) {
+                    if (mailBoxEntry.attributesStr.find("\\Noselect") == string::npos) {
                         mailBoxList.push_back(mailBoxEntry.mailBoxNameStr);
                     }
                 }
@@ -132,9 +133,9 @@ namespace Pendulum_MailBox {
 
         } else {
             
-            std::istringstream mailBoxStream { mailBoxNameStr };
+            istringstream mailBoxStream { mailBoxNameStr };
             
-            for (std::string mailBoxStr; std::getline(mailBoxStream, mailBoxStr, ',');) {
+            for (string mailBoxStr; getline(mailBoxStream, mailBoxStr, ',');) {
                 mailBoxStr = mailBoxStr.substr(mailBoxStr.find_first_not_of(' '));
                 mailBoxStr = mailBoxStr.substr(0, mailBoxStr.find_last_not_of(' ') + 1);
                 mailBoxList.push_back(mailBoxStr);
@@ -151,13 +152,13 @@ namespace Pendulum_MailBox {
     // a vector of their  UIDs.
     //
 
-    std::vector<uint64_t> fetchMailBoxMessages(CIMAP& imap, std::string& mailBoxStr, std::uint64_t searchUID) {
+    vector<uint64_t> fetchMailBoxMessages(CIMAP& imap, string& mailBoxStr, uint64_t searchUID) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
-        std::string commandStr;
-        std::vector<uint64_t> messageID { 0 };
+        string commandStr;
+        vector<uint64_t> messageID { 0 };
 
-        std::cout << "MAIL BOX [" << mailBoxStr << "]" << std::endl;
+        cout << "MAIL BOX [" << mailBoxStr << "]" << endl;
 
         // SELECT mailbox
 
@@ -167,8 +168,8 @@ namespace Pendulum_MailBox {
         // SEARCH for all present email and then create an archive for them.
 
         if (searchUID != 0) {
-            std::cout << "Searching from [" << std::to_string(searchUID) << "]" << std::endl;
-            commandStr = "UID SEARCH " + std::to_string(searchUID) + ":*";
+            cout << "Searching from [" << to_string(searchUID) << "]" << endl;
+            commandStr = "UID SEARCH " + to_string(searchUID) + ":*";
         } else {
             commandStr = "UID SEARCH 1:*";
         }
@@ -188,32 +189,32 @@ namespace Pendulum_MailBox {
     // For a given message UID fetch its subject line and body and return as a pair.
     //
 
-    std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t uid) {
+    pair<string, string> fetchEmailContents(CIMAP& imap, const string& mailBoxNameStr, uint64_t uid) {
 
-        std::string commandStr;
-        std::string subjectStr;
-        std::string emailBodyStr;
+        string commandStr;
+        string subjectStr;
+        string emailBodyStr;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
-        commandStr = "UID FETCH " + std::to_string(uid) + " (BODY[] BODY[HEADER.FIELDS (SUBJECT)])";
+        commandStr = "UID FETCH " + to_string(uid) + " (BODY[] BODY[HEADER.FIELDS (SUBJECT)])";
         parsedResponse = sendCommand(imap, mailBoxNameStr, commandStr);
 
         if (parsedResponse) {
 
             for (auto fetchEntry : parsedResponse->fetchList) {
-                std::cout << "EMAIL MESSAGE NO. [" << fetchEntry.index << "]" << std::endl;
+                cout << "EMAIL MESSAGE NO. [" << fetchEntry.index << "]" << endl;
                 for (auto resp : fetchEntry.responseMap) {
                     if (resp.first.find("BODY[]") == 0) {
                         emailBodyStr = resp.second;
                     } else if (resp.first.find("BODY[HEADER.FIELDS (SUBJECT)]") == 0) {
-                        if (resp.second.find("Subject:") != std::string::npos) { // Contains "Subject:"
+                        if (resp.second.find("Subject:") != string::npos) { // Contains "Subject:"
                             subjectStr = resp.second.substr(8);
                             subjectStr = CMIME::convertMIMEStringToASCII(subjectStr);
                             if (subjectStr.length() > kMaxSubjectLine) { // Truncate for file name
                                 subjectStr = subjectStr.substr(0, kMaxSubjectLine);
                             }
                             for (auto &ch : subjectStr) { // Remove all but alpha numeric from subject
-                                if (!std::isalnum(ch)) ch = ' ';
+                                if (!isalnum(ch)) ch = ' ';
                             }
                         }
                     }
@@ -221,7 +222,7 @@ namespace Pendulum_MailBox {
             }
         }
 
-        return (std::make_pair(subjectStr, emailBodyStr));
+        return (make_pair(subjectStr, emailBodyStr));
 
     }
 
