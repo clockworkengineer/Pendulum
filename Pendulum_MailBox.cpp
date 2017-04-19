@@ -142,7 +142,6 @@ namespace Pendulum_MailBox {
             } catch (...) {
                 if (!imap.getConnectedStatus()) {
                     cerr << "Server Disconnect.\nTrying to reconnect ..." << endl;
-                    cerr << "Trying to reconnect ..." << endl;
                     while ((retryCount > 0) && !serverReconnect(imap, mailBoxNameStr)) {
                         cerr << "Trying to reconnect ..." << endl;
                         retryCount--;
