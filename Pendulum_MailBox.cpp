@@ -65,28 +65,28 @@ namespace Pendulum_MailBox {
 
     //
     // Send command to IMAP server, parse received response and return it.
-    // At present it catches any thrown exceptions reports them then re-throws.
+    // At present it catches any thrown exceptions then re-throws.
+    // Any server disconnect or command error are also signaled by an exception.
     //
 
-    static CIMAPParse::COMMANDRESPONSE sendCommand(CIMAP& imap, const string& mailBoxNameStr,
-            const string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommand(CIMAP& imap, const string& commandStr) {
 
-        string commandResponseStr;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
         try {
-            commandResponseStr = imap.sendCommand(commandStr);
-            parsedResponse = CIMAPParse::parseResponse(commandResponseStr);
-        } catch (CIMAP::Exception &e) {
-            cerr << "IMAP ERROR: Need to reconnect to server" << endl;
-            throw (e);
-        } catch (CIMAPParse::Exception &e) {
-            cerr << "RESPONSE IN ERRROR: [" << commandResponseStr << "]" << endl;
-            throw (e);
+            
+            string commandResponseStr { imap.sendCommand(commandStr) };
+            if (commandResponseStr.size()) {
+                parsedResponse = CIMAPParse::parseResponse(commandResponseStr);
+            }
+       
+        } catch (...) {
+            throw;
         }
 
-        // Report server disconnect or command error
-        
+        // Report server disconnect or command error after command response 
+        // successfully received and response parsed.
+
         if (parsedResponse->bBYESent) {
             throw CIMAP::Exception("Received BYE from server: " + parsedResponse->errorMessageStr);
         } else if (parsedResponse->status != CIMAPParse::RespCode::OK) {
@@ -97,6 +97,67 @@ namespace Pendulum_MailBox {
 
     }
 
+    //
+    // Reconnect to IMAP server and select a passed in mailbox. 
+    // Returning a boolean to indicate success or failure.
+    //
+    
+    static bool serverReconnect(CIMAP& imap, const string& mailBoxNameStr) {
+
+        bool bReconnected=false;
+
+        try {
+
+            imap.connect();
+
+            if (imap.getConnectedStatus()) {
+                CIMAPParse::COMMANDRESPONSE parsedResponse { sendCommand(imap, "SELECT " + mailBoxNameStr) };
+                if ((parsedResponse) && (parsedResponse->status == CIMAPParse::RespCode::OK)) {
+                    cerr << "Reconnected to MailBox [" << mailBoxNameStr << "]" << endl;
+                    bReconnected = true;
+                }
+            }
+        } catch (...) {
+        }
+
+        return (bReconnected);
+
+    }
+    
+    //
+    // Send a command to IMAP server. If the server disconnects try to reconnect
+    // and resend command; a total of retryCount times.
+    //
+    
+    static CIMAPParse::COMMANDRESPONSE sendCommandReconnect(CIMAP& imap, 
+            const string& mailBoxNameStr, const string& commandStr, int retryCount) {
+        
+        CIMAPParse::COMMANDRESPONSE parsedResponse;
+
+        do {
+            
+            try {
+                parsedResponse = sendCommand(imap, commandStr);
+                break;
+            } catch (...) {
+                if (!imap.getConnectedStatus()) {
+                    cerr << "Server Disconnect.\nTrying to reconnect ..." << endl;
+                    cerr << "Trying to reconnect ..." << endl;
+                    while ((retryCount > 0) && !serverReconnect(imap, mailBoxNameStr)) {
+                        cerr << "Trying to reconnect ..." << endl;
+                        retryCount--;
+                    }
+                } else {
+                    throw;
+                }
+            }
+
+        } while (retryCount > 0);
+
+        return(parsedResponse);
+        
+    }
+    
     // ================
     // PUBLIC FUNCTIONS
     // ================
@@ -116,7 +177,7 @@ namespace Pendulum_MailBox {
             CIMAPParse::COMMANDRESPONSE parsedResponse;
 
             commandStr = "LIST \"\" *";
-            parsedResponse = sendCommand(imap, "", commandStr);
+            parsedResponse = sendCommandReconnect(imap, "", commandStr, kReconnectRetryCount);
 
             if (parsedResponse) {
 
@@ -163,7 +224,7 @@ namespace Pendulum_MailBox {
         // SELECT mailbox
 
         commandStr = "SELECT " + mailBoxStr;
-        parsedResponse = sendCommand(imap, mailBoxStr, commandStr);
+        parsedResponse = sendCommandReconnect(imap, mailBoxStr, commandStr, kReconnectRetryCount);
 
         // SEARCH for all present email and then create an archive for them.
 
@@ -174,7 +235,7 @@ namespace Pendulum_MailBox {
             commandStr = "UID SEARCH 1:*";
         }
 
-        parsedResponse = sendCommand(imap, mailBoxStr, commandStr);
+        parsedResponse = sendCommandReconnect(imap, mailBoxStr, commandStr, kReconnectRetryCount);
         if (parsedResponse) {
             if ((parsedResponse->indexes.size() == 1) && (parsedResponse->indexes[0] == searchUID)) {
                 parsedResponse->indexes.clear();
@@ -197,7 +258,7 @@ namespace Pendulum_MailBox {
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
         commandStr = "UID FETCH " + to_string(uid) + " (BODY[] BODY[HEADER.FIELDS (SUBJECT)])";
-        parsedResponse = sendCommand(imap, mailBoxNameStr, commandStr);
+        parsedResponse = sendCommandReconnect(imap, mailBoxNameStr, commandStr, kReconnectRetryCount);
 
         if (parsedResponse) {
 

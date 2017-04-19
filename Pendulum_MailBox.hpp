@@ -43,6 +43,12 @@ namespace Pendulum_MailBox {
     //
 
     constexpr const int kMaxSubjectLine = 80;
+    
+    //
+    // Maximum subject line to take in file name
+    //
+
+    constexpr const int kReconnectRetryCount = 5;
 
     //
     // Return a vector of mailbox names to be processed
