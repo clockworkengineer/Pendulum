@@ -37,10 +37,12 @@ namespace Pendulum_CommandLine {
         std::string configFileNameStr;      // Configuration file name
         bool bOnlyUpdates { false };        // = true search date since last .eml archived
         bool bAllMailBoxes { false };       // = true archive all mailboxes
+        int pollTime { 0 };                 // Poll time in minutes
+        int retryCount { 5 };               // Server reconnect retry count
 
     };
 
-    void fetchCommandLineArgs(int argc, char** argv, ParamArgData &argData);
+    ParamArgData fetchCommandLineArgs(int argc, char** argv);
 
 } // namespace Pendulum_CommandLine
 

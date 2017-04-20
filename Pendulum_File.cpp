@@ -79,6 +79,33 @@ namespace Pendulum_File {
     // ================
 
     //
+    // Create destination for mailbox archive
+    //
+
+    std::string createMailboxFolder(const string& destFolderStr, const string& mailBoxNameStr) {
+
+        string mailBoxFolderStr{ mailBoxNameStr};
+
+        // Clear any quotes from mailbox name for folder name
+
+        if (mailBoxFolderStr.front() == '\"') mailBoxFolderStr = mailBoxNameStr.substr(1);
+        if (mailBoxFolderStr.back() == '\"') mailBoxFolderStr.pop_back();
+
+        // Create mailbox destination folder
+
+        fs::path mailBoxPath {destFolderStr };
+        
+        mailBoxPath /= mailBoxFolderStr;
+        if (!fs::exists(mailBoxPath)) {
+            cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << endl;
+            fs::create_directories(mailBoxPath);
+        }
+        
+        return(mailBoxPath.string());
+        
+    }
+    
+    //
     // Create .eml for downloaded email.
     //
 

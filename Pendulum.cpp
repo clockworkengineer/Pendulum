@@ -54,6 +54,8 @@
 //
 
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 //
 // Program components.
@@ -86,9 +88,9 @@ namespace Pendulum {
     // =======
     // IMPORTS
     // =======
-    
+
     using namespace std;
-    
+
     using namespace Pendulum_CommandLine;
     using namespace Pendulum_MailBox;
     using namespace Pendulum_File;
@@ -123,14 +125,12 @@ namespace Pendulum {
 
         try {
 
-            ParamArgData argumentData;
             CIMAP imapServer;
-            vector<string> mailBoxList;
-
-            // Read in command line parameters and process
-
-            fetchCommandLineArgs(argc, argv, argumentData);
-
+            
+            // Setup argument data
+            
+            ParamArgData argumentData { fetchCommandLineArgs(argc, argv) };
+ 
             // Initialize CIMAP internals
 
             CIMAP::init();
@@ -140,64 +140,63 @@ namespace Pendulum {
             imapServer.setServer(argumentData.serverURLStr);
             imapServer.setUserAndPassword(argumentData.userNameStr, argumentData.userPasswordStr);
 
-            // Connect
+            do {
 
-            cout << "Connecting to server [" << argumentData.serverURLStr << "]" << endl;
+                // Connect
 
-            imapServer.connect();
+                cout << "Connecting to server [" << argumentData.serverURLStr << "]" << endl;
 
-            // Create mailbox list
+                imapServer.connect();
 
-            mailBoxList = fetchMailBoxList(imapServer, argumentData.mailBoxNameStr, argumentData.bAllMailBoxes);
+                // Create mailbox list
 
-            for (string mailBoxNameStr : mailBoxList) {
+                vector<string> mailBoxList { fetchMailBoxList(imapServer, argumentData.mailBoxNameStr, 
+                                              argumentData.bAllMailBoxes, argumentData.retryCount) };
 
-                uint64_t searchUID { 0 };
-                string mailBoxFolderStr { mailBoxNameStr };
+                for (string& mailBoxNameStr : mailBoxList) {
 
-                // Clear any quotes from mailbox name for folder name
+                    uint64_t searchUID { 0 };      
+                    std::string mailBoxPathStr { createMailboxFolder(argumentData.destinationFolderStr, mailBoxNameStr) };
+                    
+                     // If only updates specified find highest UID to search from
 
-                if (mailBoxFolderStr.front() == '\"') mailBoxFolderStr = mailBoxNameStr.substr(1);
-                if (mailBoxFolderStr.back() == '\"') mailBoxFolderStr.pop_back();
-
-                // Create mailbox destination folder
-
-                fs::path mailBoxPath{argumentData.destinationFolderStr};
-                mailBoxPath /= mailBoxFolderStr;
-                if (!argumentData.destinationFolderStr.empty() && !fs::exists(mailBoxPath)) {
-                    cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << endl;
-                    fs::create_directories(mailBoxPath);
-                }
-
-                // If only updates specified find highest UID to search from
-
-                if (argumentData.bOnlyUpdates) {
-                    searchUID = getNewestIndex(mailBoxPath.string());
-                }
-
-                // Get vector of new mail UIDs
-
-                vector<uint64_t> messageIDs = fetchMailBoxMessages(imapServer, mailBoxNameStr, searchUID);
-
-                // If messages found then create new EML files.
-
-                if (messageIDs.size()) {
-                    cout << "Messages found = " << messageIDs.size() << endl;
-                    for (auto index : messageIDs) {
-                        pair<string, string> emailContents = fetchEmailContents(imapServer, mailBoxNameStr, index);
-                        createEMLFile(emailContents, index, mailBoxPath.string());
+                    if (argumentData.bOnlyUpdates) {
+                        searchUID = getNewestIndex(mailBoxPathStr);
                     }
-                } else {
-                    cout << "No messages found." << endl;
+
+                    // Get vector of new mail UIDs
+
+                    vector<uint64_t> messageUID { fetchMailBoxMessages(imapServer, mailBoxNameStr, searchUID, argumentData.retryCount) };
+
+                    // If messages found then create new EML files.
+
+                    if (messageUID.size()) {
+                        cout << "Messages found = " << messageUID.size() << endl;
+                        for (auto uid : messageUID) {
+                            pair<string, string> emailContents { fetchEmailContents(imapServer, mailBoxNameStr, uid, argumentData.retryCount) };
+                            if (emailContents.first.size() && emailContents.second.size()) {
+                                createEMLFile(emailContents, uid, mailBoxPathStr);
+                            } else {
+                                cerr << "E-mail file not created as subject or contents empty" << endl;
+                            }
+                        }
+                    } else {
+                        cout << "No messages found." << endl;
+                    }
+
                 }
 
-            }
+                // Disconnect from server
 
-            // Disconnect from server
+                cout << "Disconnecting from server [" << argumentData.serverURLStr << "]" << endl;
 
-            cout << "Disconnecting from server [" << argumentData.serverURLStr << "]" << endl;
+                imapServer.disconnect();
+                
+                // Wait poll interval pollTime == 0 then one pass
 
-            imapServer.disconnect();
+                std::this_thread::sleep_for(std::chrono::minutes(argumentData.pollTime));
+
+            } while (argumentData.pollTime);
 
         //
         // Catch any errors

@@ -20,7 +20,13 @@
 #include <utility>
 
 namespace Pendulum_File {
+    
+    //
+    // Create destination for mailbox archive
+    //
 
+    std::string createMailboxFolder(const std::string& destFolderStr, const std::string& mailBoxNameStr);
+     
     //
     // Create .eml file for a given e-mail message
     //
