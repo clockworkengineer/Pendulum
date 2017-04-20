@@ -24,13 +24,15 @@
 //
 // Pendulum Example Application
 // Program Options:
-//  --help                   Print help messages
+//   --help                   Print help messages
 //   -c [ --config ] arg      Config File Name
 //   -s [ --server ] arg      IMAP Server URL and port
 //   -u [ --user ] arg        Account username
 //   -p [ --password ] arg    User password
 //   -m [ --mailbox ] arg     Mailbox name
-//   -d [ --destination ] arg Destination for attachments
+//   -d [ --destination ] arg Destination for archived e-mail
+//   --poll arg               Poll time in minutes
+//   -r [ --retry ] arg       Server reconnect retry count
 //   -u [ --updates ]         Search since last file archived.
 //   -a [ --all ]             Download files for all mailboxes.
 //
