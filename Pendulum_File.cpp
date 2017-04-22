@@ -18,7 +18,6 @@
 // Dependencies:
 // 
 // C11++              : Use of C11++ features.
-// Antikythera Classes: CMailIMAPParse.
 // Boost              : File system, iterator.
 //
 
@@ -42,12 +41,6 @@
 #include "Pendulum_File.hpp"
 
 //
-// Antikythera Classes
-//
-
-#include "CIMAPParse.hpp"
-
-//
 // Boost file system & range iterator definitions
 //
 
@@ -65,8 +58,6 @@ namespace Pendulum_File {
     // =======
 
     using namespace std;
-    
-    using Antik::Mail::CIMAPParse;
     
     namespace fs = boost::filesystem;
     
@@ -146,7 +137,10 @@ namespace Pendulum_File {
             
             for (auto& entry : boost::make_iterator_range(fs::directory_iterator(destPath),{})) {
                 if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExt) == 0)) {
-                    currentIndex = strtoull(CIMAPParse::stringBetween(entry.path().filename().string(), '(', ')').c_str(), nullptr, 10);
+                    std::string uidStr { entry.path().filename().string()};
+                    uidStr = uidStr.substr(uidStr.find_first_of(('('))+1);
+                    uidStr = uidStr.substr(0, uidStr.find_first_of((')')));
+                    currentIndex = strtoull(uidStr.c_str(), nullptr, 10);
                     if (currentIndex > highestIndex) {
                         highestIndex = currentIndex;
                     }

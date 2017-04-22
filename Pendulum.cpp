@@ -98,7 +98,7 @@ namespace Pendulum {
     using namespace Pendulum_MailBox;
     using namespace Pendulum_File;
 
-    using namespace Antik::Mail;
+    using namespace Antik::IMAP;
 
     namespace fs = boost::filesystem;
 

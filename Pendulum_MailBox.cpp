@@ -58,7 +58,7 @@ namespace Pendulum_MailBox {
 
     using namespace std;
     
-    using namespace Antik::Mail;
+    using namespace Antik::IMAP;
     using namespace Antik::File;
 
     // ===============
@@ -184,7 +184,7 @@ namespace Pendulum_MailBox {
                 break;
             } 
             
-            // Last try so throw saved error
+            // Last try so throw last saved error
             
             if (!(--retryCount)) {   
                 std::rethrow_exception(thrownException);

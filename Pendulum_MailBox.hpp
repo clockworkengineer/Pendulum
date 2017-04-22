@@ -36,7 +36,7 @@ namespace Pendulum_MailBox {
     // IMPORTS
     // =======
 
-    using Antik::Mail::CIMAP;
+    using Antik::IMAP::CIMAP;
 
     //
     // Maximum subject line to take in file name
