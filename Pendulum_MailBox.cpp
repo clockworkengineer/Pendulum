@@ -184,7 +184,7 @@ namespace Pendulum_MailBox {
                 break;
             } 
             
-            // Last try so throw last saved error
+            // Retry count == 0 try so throw last saved error
             
             if (!(--retryCount)) {   
                 std::rethrow_exception(thrownException);
