@@ -44,11 +44,12 @@ namespace Pendulum_MailBox {
 
     constexpr const int kMaxSubjectLine = 80;
     
+    
     //
-    // Maximum subject line to take in file name
+    // Initial server connect with retry
     //
-
-    //constexpr const int kReconnectRetryCount = 1;
+    
+    void serverConnect(CIMAP& imap, int retryCount);
 
     //
     // Return a vector of mailbox names to be processed

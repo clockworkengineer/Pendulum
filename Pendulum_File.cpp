@@ -84,7 +84,7 @@ namespace Pendulum_File {
 
     std::string createMailboxFolder(const string& destFolderStr, const string& mailBoxNameStr) {
 
-        string mailBoxFolderStr{ mailBoxNameStr};
+        string mailBoxFolderStr { mailBoxNameStr };
 
         // Clear any quotes from mailbox name for folder name
 
@@ -136,7 +136,7 @@ namespace Pendulum_File {
     // prefix; get the Index from this.
     //
 
-    uint64_t getNewestIndex(const string& destFolderStr) {
+    uint64_t getNewestUID(const string& destFolderStr) {
 
         if (fs::exists(destFolderStr) && fs::is_directory(destFolderStr)) {
 

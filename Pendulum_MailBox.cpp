@@ -77,8 +77,7 @@ namespace Pendulum_MailBox {
 
         try {
             
-            string commandResponseStr;
-            commandResponseStr = imap.sendCommand(commandStr);
+            string commandResponseStr { imap.sendCommand(commandStr) };
             if (commandResponseStr.size()) {
                 parsedResponse = CIMAPParse::parseResponse(commandResponseStr);
             }
@@ -102,68 +101,51 @@ namespace Pendulum_MailBox {
 
     //
     // Reconnect to IMAP server and select passed in (current) mailbox. 
-    // Returning a boolean to indicate success or failure.
     //
     
-    static bool serverReconnect(CIMAP& imap, const string& mailBoxNameStr) {
+    static void serverReconnect(CIMAP& imap, const string& mailBoxNameStr, int retryCount) {
 
-        bool bReconnected=false;
+        serverConnect(imap, retryCount);
 
-        try {
-
-            imap.connect();
-
-            if (imap.getConnectedStatus()) {
-                CIMAPParse::COMMANDRESPONSE parsedResponse;
-                parsedResponse = sendCommand(imap, "SELECT " + mailBoxNameStr);
-                if ((parsedResponse) && (parsedResponse->status == CIMAPParse::RespCode::OK)) {
-                    cerr << "Reconnected to MailBox [" << mailBoxNameStr << "]" << endl;
-                    bReconnected = true;
-                }
+        if (imap.getConnectedStatus() && mailBoxNameStr.size()) {
+            CIMAPParse::COMMANDRESPONSE parsedResponse;
+            parsedResponse = sendCommand(imap, "SELECT " + mailBoxNameStr);
+            if ((parsedResponse) && (parsedResponse->status == CIMAPParse::RespCode::OK)) {
+                cerr << "Reconnected to MailBox [" << mailBoxNameStr << "]" << endl;
             }
-        } catch (...) { // Catch all as we are trying to reconnect
         }
-
-        return (bReconnected);
 
     }
     
     //
     // Send a command to IMAP server. If the server disconnects try to reconnect
-    // and resend command; a total of retryCount times. Catch all exceptions and
-    // if not connected then try to reconnect otherwise re-throw.
+    // and resend command even if it was successful.
     //
     
     static CIMAPParse::COMMANDRESPONSE sendCommandRetry(CIMAP& imap, 
             const string& mailBoxNameStr, const string& commandStr, int retryCount) {
         
         CIMAPParse::COMMANDRESPONSE parsedResponse;
-        
-        do {
-            
-            try {
-                parsedResponse = sendCommand(imap, commandStr);
-                break;
-            } catch (...) {
-                // If not connected try to reconnect otherwise re-throw error
-                
-                if (!imap.getConnectedStatus()) {
-                    cerr << "Server Disconnect.\nTrying to reconnect ..." << endl;
-                    while ((retryCount > 0) && !serverReconnect(imap, mailBoxNameStr)) {
-                        cerr << "Trying to reconnect ..." << endl;
-                        retryCount--;
-                    }
-                } else {
-                    throw;
-                }
-            }
 
-        } while (retryCount > 0);
-        
-        // If not reconnected then throw
-        
-        if (!imap.getConnectedStatus()) {
-            throw CIMAP::Exception("Failed to reconnect to server.");
+        try {
+            parsedResponse = sendCommand(imap, commandStr);
+        } catch (...) {
+            // If still connected  re-throw error as not connection related.
+            if (imap.getConnectedStatus()) {
+                throw;
+            }
+        }
+
+        try {
+            // The command may have been successful but if a disconnect was detected
+            // try to reconnect and repeat command just in case.
+            if (!imap.getConnectedStatus()) {
+                cerr << "Server Disconnect.\nTrying to reconnect ..." << endl;
+                serverReconnect(imap, mailBoxNameStr, retryCount);
+                parsedResponse = sendCommand(imap, commandStr);
+            }
+        } catch (...) {
+            throw;  // Signal reconnect/command failure.
         }
 
         return(parsedResponse);
@@ -174,6 +156,46 @@ namespace Pendulum_MailBox {
     // PUBLIC FUNCTIONS
     // ================
 
+    //
+    // Connect to IMAP server (performing retryCount times until successful).
+    //
+    
+    void serverConnect(CIMAP& imap, int retryCount) {
+
+        std::exception_ptr thrownException { nullptr };
+        
+        // Connect retry loop
+        
+        while(true) {
+
+            // Try to connect
+            
+            try {             
+                imap.connect(); 
+                thrownException = nullptr;  // Possible success
+            } catch (...) {
+                thrownException = std::current_exception(); // Error        
+            }
+
+            // If connected return
+            
+            if (imap.getConnectedStatus() && !thrownException) {
+                cout << "Connected." << endl;
+                break;
+            } 
+            
+            // Last try so throw saved error
+            
+            if (!(--retryCount)) {   
+                std::rethrow_exception(thrownException);
+            }
+            
+            cerr << "Trying to reconnect ..." << endl;
+
+        }
+
+    }
+    
     //
     // Convert list of comma separated mailbox names / list all mailboxes and 
     // place into vector of mailbox name strings to be returned.

@@ -37,7 +37,7 @@ namespace Pendulum_File {
     // Return the UID of the newest e-mail message archived for a mailbox.
     //
 
-    std::uint64_t getNewestIndex(const std::string& destFolderStr);
+    std::uint64_t getNewestUID(const std::string& destFolderStr);
     
 
 } // namespace Pendulum_File

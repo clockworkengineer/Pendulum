@@ -58,6 +58,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <stdexcept>
 
 //
 // Program components.
@@ -128,7 +129,7 @@ namespace Pendulum {
         try {
 
             CIMAP imapServer;
-            
+             
             // Setup argument data
             
             ParamArgData argumentData { fetchCommandLineArgs(argc, argv) };
@@ -148,7 +149,7 @@ namespace Pendulum {
 
                 cout << "Connecting to server [" << argumentData.serverURLStr << "]" << endl;
 
-                imapServer.connect();
+                serverConnect(imapServer, argumentData.retryCount);
 
                 // Create mailbox list
 
@@ -163,7 +164,7 @@ namespace Pendulum {
                      // If only updates specified find highest UID to search from
 
                     if (argumentData.bOnlyUpdates) {
-                        searchUID = getNewestIndex(mailBoxPathStr);
+                        searchUID = getNewestUID(mailBoxPathStr);
                     }
 
                     // Get vector of new mail UIDs
@@ -194,7 +195,7 @@ namespace Pendulum {
 
                 imapServer.disconnect();
                 
-                // Wait poll interval pollTime == 0 then one pass
+                // Wait poll interval (pollTime == 0 then one pass)
 
                 std::this_thread::sleep_for(std::chrono::minutes(argumentData.pollTime));
 
