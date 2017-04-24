@@ -43,8 +43,9 @@ namespace Pendulum_MailBox {
     //
     
     struct MailBoxDetails {
-        std::string nameStr;
-        std::uint64_t searchUID;
+        std::string nameStr;        // Mailbox name
+        std::uint64_t searchUID;    // Current search UID
+        std::string pathStr;        // Email archive folder path     
     };
     
     //

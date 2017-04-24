@@ -163,13 +163,17 @@ namespace Pendulum {
                 }
 
                 for (MailBoxDetails& mailBoxEntry : mailBoxList) {
-   
-                    std::string mailBoxPathStr { createMailboxFolder(argumentData.destinationFolderStr, mailBoxEntry.nameStr) };
+                    
+                    // Set mailbox archive folder
+
+                    if (mailBoxEntry.pathStr.empty()) {
+                        mailBoxEntry.pathStr = createMailboxFolder(argumentData.destinationFolderStr, mailBoxEntry.nameStr);
+                    }
                     
                      // If only updates specified find highest UID to search from
 
                     if (argumentData.bOnlyUpdates && (imapConnection.connectCount==0)) {                       
-                        mailBoxEntry.searchUID = getNewestUID(mailBoxPathStr);
+                        mailBoxEntry.searchUID = getNewestUID(mailBoxEntry.pathStr);
                     }
 
                     // Get vector of new mail UID(s)
@@ -183,7 +187,7 @@ namespace Pendulum {
                         for (auto uid : messageUID) {
                             pair<string, string> emailContents { fetchEmailContents(imapConnection, mailBoxEntry.nameStr, uid) };
                             if (emailContents.first.size() && emailContents.second.size()) {
-                                createEMLFile(emailContents, uid, mailBoxPathStr);
+                                createEMLFile(emailContents, uid, mailBoxEntry.pathStr);
                             } else {
                                 cerr << "E-mail file not created as subject or contents empty" << endl;
                             }
