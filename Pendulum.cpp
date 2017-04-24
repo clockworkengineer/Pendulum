@@ -128,7 +128,8 @@ namespace Pendulum {
 
         try {
 
-            CIMAP imapServer;
+            ServerConn imapConnection;
+            vector<MailBoxDetails> mailBoxList;
              
             // Setup argument data
             
@@ -140,49 +141,55 @@ namespace Pendulum {
 
             // Set mail account user name and password
 
-            imapServer.setServer(argumentData.serverURLStr);
-            imapServer.setUserAndPassword(argumentData.userNameStr, argumentData.userPasswordStr);
-
+            imapConnection.server.setServer(argumentData.serverURLStr);
+            imapConnection.server.setUserAndPassword(argumentData.userNameStr, argumentData.userPasswordStr);
+            
+            // Set retry count
+            
+            imapConnection.retryCount = argumentData.retryCount;
+            
             do {
 
                 // Connect
 
-                cout << "Connecting to server [" << argumentData.serverURLStr << "]" << endl;
+                cout << "Connecting to server [" << imapConnection.server.getServer() << "][" << imapConnection.connectCount << "]" << endl;
 
-                serverConnect(imapServer, argumentData.retryCount);
+                serverConnect(imapConnection);
 
-                // Create mailbox list
+                // Create mailbox list if doesn't exist
 
-                vector<string> mailBoxList { fetchMailBoxList(imapServer, argumentData.mailBoxNameStr, 
-                                              argumentData.bAllMailBoxes, argumentData.retryCount) };
+                if (mailBoxList.empty()) {
+                    mailBoxList = fetchMailBoxList(imapConnection, argumentData.mailBoxNameStr, argumentData.bAllMailBoxes);
+                }
 
-                for (string& mailBoxNameStr : mailBoxList) {
-
-                    uint64_t searchUID { 0 };      
-                    std::string mailBoxPathStr { createMailboxFolder(argumentData.destinationFolderStr, mailBoxNameStr) };
+                for (MailBoxDetails& mailBoxEntry : mailBoxList) {
+   
+                    std::string mailBoxPathStr { createMailboxFolder(argumentData.destinationFolderStr, mailBoxEntry.nameStr) };
                     
                      // If only updates specified find highest UID to search from
 
-                    if (argumentData.bOnlyUpdates) {
-                        searchUID = getNewestUID(mailBoxPathStr);
+                    if (argumentData.bOnlyUpdates && (imapConnection.connectCount==0)) {                       
+                        mailBoxEntry.searchUID = getNewestUID(mailBoxPathStr);
                     }
 
-                    // Get vector of new mail UIDs
+                    // Get vector of new mail UID(s)
 
-                    vector<uint64_t> messageUID { fetchMailBoxMessages(imapServer, mailBoxNameStr, searchUID, argumentData.retryCount) };
+                    vector<uint64_t> messageUID { fetchMailBoxMessages(imapConnection, mailBoxEntry) };
 
                     // If messages found then create new EML files.
 
                     if (messageUID.size()) {
                         cout << "Messages found = " << messageUID.size() << endl;
                         for (auto uid : messageUID) {
-                            pair<string, string> emailContents { fetchEmailContents(imapServer, mailBoxNameStr, uid, argumentData.retryCount) };
+                            pair<string, string> emailContents { fetchEmailContents(imapConnection, mailBoxEntry.nameStr, uid) };
                             if (emailContents.first.size() && emailContents.second.size()) {
                                 createEMLFile(emailContents, uid, mailBoxPathStr);
                             } else {
                                 cerr << "E-mail file not created as subject or contents empty" << endl;
                             }
+                            
                         }
+                        mailBoxEntry.searchUID = messageUID.back(); // Update search UID
                     } else {
                         cout << "No messages found." << endl;
                     }
@@ -193,7 +200,11 @@ namespace Pendulum {
 
                 cout << "Disconnecting from server [" << argumentData.serverURLStr << "]" << endl;
 
-                imapServer.disconnect();
+                imapConnection.server.disconnect();
+                
+                // Increment connection count 
+                
+                imapConnection.connectCount++;
                 
                 // Wait poll interval (pollTime == 0 then one pass)
 

@@ -37,6 +37,25 @@ namespace Pendulum_MailBox {
     // =======
 
     using Antik::IMAP::CIMAP;
+    
+    //
+    // Mailbox details
+    //
+    
+    struct MailBoxDetails {
+        std::string nameStr;
+        std::uint64_t searchUID;
+    };
+    
+    //
+    // IMAP server connection data
+    //
+    
+    struct ServerConn {
+        CIMAP server;           // IMAP server connection
+        int connectCount { 0 }; // Connection count
+        int retryCount;         // Retry count
+    };
 
     //
     // Maximum subject line to take in file name
@@ -49,25 +68,25 @@ namespace Pendulum_MailBox {
     // Initial server connect with retry
     //
     
-    void serverConnect(CIMAP& imap, int retryCount);
+    void serverConnect(ServerConn& imapConnection);
 
     //
     // Return a vector of mailbox names to be processed
     //
     
-    std::vector<std::string> fetchMailBoxList(CIMAP& imap, const std::string& mailBoxNameStr, bool bAllMailBoxes, int retryCount);
+    std::vector<MailBoxDetails> fetchMailBoxList(ServerConn& imapConnection, const std::string& mailBoxNameStr, bool bAllMailBoxes);
 
     //
     // Return a vector of e-mail  UIDs to be archived (.eml file created).
     //
     
-    std::vector<uint64_t> fetchMailBoxMessages(CIMAP& imap, const std::string& mailBoxStr, std::uint64_t searchUID, int retryCount);
+    std::vector<uint64_t> fetchMailBoxMessages(ServerConn& imapConnection, const MailBoxDetails& mailBoxEntry);
 
     //
     // Return string pair of an e-mails subject line and contents.
     //
     
-    std::pair<std::string, std::string> fetchEmailContents(CIMAP& imap, const std::string& mailBoxNameStr, std::uint64_t uid, int retryCount);
+    std::pair<std::string, std::string> fetchEmailContents(ServerConn& imapConnection, const std::string& mailBoxNameStr, std::uint64_t uid);
 
 } // namespace Pendulum_MailBox
 
