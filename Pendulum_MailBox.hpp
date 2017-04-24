@@ -53,9 +53,10 @@ namespace Pendulum_MailBox {
     //
     
     struct ServerConn {
-        CIMAP server;           // IMAP server connection
-        int connectCount { 0 }; // Connection count
-        int retryCount;         // Retry count
+        CIMAP server;                   // IMAP server connection
+        std::string selectedMailBoxStr; //
+        int connectCount { 0 };         // Connection count
+        int retryCount;                 // Retry count
     };
 
     //
@@ -87,7 +88,7 @@ namespace Pendulum_MailBox {
     // Return string pair of an e-mails subject line and contents.
     //
     
-    std::pair<std::string, std::string> fetchEmailContents(ServerConn& imapConnection, const std::string& mailBoxNameStr, std::uint64_t uid);
+    std::pair<std::string, std::string> fetchEmailContents(ServerConn& imapConnection, std::uint64_t uid);
 
 } // namespace Pendulum_MailBox
 

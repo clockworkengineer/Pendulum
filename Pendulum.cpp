@@ -155,15 +155,25 @@ namespace Pendulum {
                 cout << "Connecting to server [" << imapConnection.server.getServer() << "][" << imapConnection.connectCount << "]" << endl;
 
                 serverConnect(imapConnection);
+                
+                // Reset reconnect mailbox to none
+                
+                imapConnection.selectedMailBoxStr = "";
 
                 // Create mailbox list if doesn't exist
 
                 if (mailBoxList.empty()) {
                     mailBoxList = fetchMailBoxList(imapConnection, argumentData.mailBoxNameStr, argumentData.bAllMailBoxes);
                 }
+                
+                // Process mailboxes
 
                 for (MailBoxDetails& mailBoxEntry : mailBoxList) {
                     
+                    // Set mailbox to select on reconnect.
+                    
+                    imapConnection.selectedMailBoxStr = mailBoxEntry.nameStr;
+                            
                     // Set mailbox archive folder
 
                     if (mailBoxEntry.pathStr.empty()) {
@@ -185,7 +195,7 @@ namespace Pendulum {
                     if (messageUID.size()) {
                         cout << "Messages found = " << messageUID.size() << endl;
                         for (auto uid : messageUID) {
-                            pair<string, string> emailContents { fetchEmailContents(imapConnection, mailBoxEntry.nameStr, uid) };
+                            pair<string, string> emailContents { fetchEmailContents(imapConnection, uid) };
                             if (emailContents.first.size() && emailContents.second.size()) {
                                 createEMLFile(emailContents, uid, mailBoxEntry.pathStr);
                             } else {

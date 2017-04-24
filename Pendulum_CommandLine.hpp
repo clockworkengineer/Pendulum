@@ -35,7 +35,7 @@ namespace Pendulum_CommandLine {
         std::string mailBoxNameStr;         // Mailbox name
         std::string destinationFolderStr;   // Destination folder for attachments
         std::string configFileNameStr;      // Configuration file name
-        bool bOnlyUpdates { false };        // = true search date since last .eml archived
+        bool bOnlyUpdates { false };        // = true search from UID of last .eml archived
         bool bAllMailBoxes { false };       // = true archive all mailboxes
         int pollTime { 0 };                 // Poll time in minutes
         int retryCount { 5 };               // Server reconnect retry count

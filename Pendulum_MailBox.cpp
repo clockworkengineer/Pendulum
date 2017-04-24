@@ -103,15 +103,15 @@ namespace Pendulum_MailBox {
     // Reconnect to IMAP server and select passed in (current) mailbox. 
     //
     
-    static void serverReconnect(ServerConn& imapConnection, const string& mailBoxNameStr) {
+    static void serverReconnect(ServerConn& imapConnection) {
 
         serverConnect(imapConnection);
 
-        if (imapConnection.server.getConnectedStatus() && mailBoxNameStr.size()) {
+        if (imapConnection.server.getConnectedStatus() && imapConnection.selectedMailBoxStr.size()) {
             CIMAPParse::COMMANDRESPONSE parsedResponse;
-            parsedResponse = sendCommand(imapConnection, "SELECT " + mailBoxNameStr);
+            parsedResponse = sendCommand(imapConnection, "SELECT " + imapConnection.selectedMailBoxStr);
             if ((parsedResponse) && (parsedResponse->status == CIMAPParse::RespCode::OK)) {
-                cerr << "Reconnected to MailBox [" << mailBoxNameStr << "]" << endl;
+                cerr << "Reconnected to MailBox [" << imapConnection.selectedMailBoxStr << "]" << endl;
             }
         }
 
@@ -122,8 +122,7 @@ namespace Pendulum_MailBox {
     // and resend command even if it was successful.
     //
     
-    static CIMAPParse::COMMANDRESPONSE sendCommandRetry(ServerConn& imapConnection, 
-            const string& mailBoxNameStr, const string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommandRetry(ServerConn& imapConnection, const string& commandStr) {
         
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
@@ -141,7 +140,7 @@ namespace Pendulum_MailBox {
             // try to reconnect and repeat command just in case.
             if (!imapConnection.server.getConnectedStatus()) {
                 cerr << "Server Disconnect.\nTrying to reconnect ..." << endl;
-                serverReconnect(imapConnection, mailBoxNameStr);
+                serverReconnect(imapConnection);
                 parsedResponse = sendCommand(imapConnection, commandStr);
             }
         } catch (...) {
@@ -212,7 +211,7 @@ namespace Pendulum_MailBox {
             
             // Get list of all mailboxes
             
-            parsedResponse = sendCommandRetry(imapConnection, "", "LIST \"\" *");
+            parsedResponse = sendCommandRetry(imapConnection, "LIST \"\" *");
 
             if (parsedResponse) {
 
@@ -257,7 +256,7 @@ namespace Pendulum_MailBox {
 
         // SELECT mailbox
 
-        parsedResponse = sendCommandRetry(imapConnection, mailBoxEntry.nameStr, "SELECT " + mailBoxEntry.nameStr);
+        parsedResponse = sendCommandRetry(imapConnection, "SELECT " + mailBoxEntry.nameStr);
 
         // SEARCH for all present email and then create an archive for them.
 
@@ -268,7 +267,7 @@ namespace Pendulum_MailBox {
             commandStr = "UID SEARCH 1:*";
         }
 
-        parsedResponse = sendCommandRetry(imapConnection, mailBoxEntry.nameStr, commandStr);
+        parsedResponse = sendCommandRetry(imapConnection, commandStr);
         if (parsedResponse) {
             if ((parsedResponse->indexes.size() == 1) && (parsedResponse->indexes[0] == mailBoxEntry.searchUID)) {
                 parsedResponse->indexes.clear();
@@ -283,13 +282,13 @@ namespace Pendulum_MailBox {
     // For a given message UID fetch its subject line and body and return as a pair.
     //
 
-    pair<string, string> fetchEmailContents(ServerConn& imapConnection, const string& mailBoxNameStr, uint64_t uid) {
+    pair<string, string> fetchEmailContents(ServerConn& imapConnection, uint64_t uid) {
 
         string subjectStr;
         string emailBodyStr;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
         
-        parsedResponse = sendCommandRetry(imapConnection, mailBoxNameStr, 
+        parsedResponse = sendCommandRetry(imapConnection, 
                 "UID FETCH " + to_string(uid) + " (BODY[] BODY[HEADER.FIELDS (SUBJECT)])");
 
         if (parsedResponse) {
