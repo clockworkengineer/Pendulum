@@ -53,10 +53,10 @@ namespace Pendulum_MailBox {
     //
     
     struct ServerConn {
-        CIMAP server;                   // IMAP server connection
-        std::string selectedMailBoxStr; //
-        int connectCount { 0 };         // Connection count
-        int retryCount;                 // Retry count
+        CIMAP server;                    // IMAP server connection
+        std::string reconnectMailBoxStr; // Reconnect select mailbox
+        int connectCount { 0 };          // Connection count
+        int retryCount;                  // Retry count
     };
 
     //

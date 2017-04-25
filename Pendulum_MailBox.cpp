@@ -107,11 +107,11 @@ namespace Pendulum_MailBox {
 
         serverConnect(imapConnection);
 
-        if (imapConnection.server.getConnectedStatus() && imapConnection.selectedMailBoxStr.size()) {
+        if (imapConnection.server.getConnectedStatus() && imapConnection.reconnectMailBoxStr.size()) {
             CIMAPParse::COMMANDRESPONSE parsedResponse;
-            parsedResponse = sendCommand(imapConnection, "SELECT " + imapConnection.selectedMailBoxStr);
+            parsedResponse = sendCommand(imapConnection, "SELECT " + imapConnection.reconnectMailBoxStr);
             if ((parsedResponse) && (parsedResponse->status == CIMAPParse::RespCode::OK)) {
-                cerr << "Reconnected to MailBox [" << imapConnection.selectedMailBoxStr << "]" << endl;
+                cerr << "Reconnected to MailBox [" << imapConnection.reconnectMailBoxStr << "]" << endl;
             }
         }
 
