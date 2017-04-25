@@ -72,11 +72,12 @@ namespace Pendulum_CommandLine {
         commonOptions.add_options()
                 ("server,s", po::value<string>(&argData.serverURLStr)->required(), "IMAP Server URL and port")
                 ("user,u", po::value<string>(&argData.userNameStr)->required(), "Account username")
-                ("password,p", po::value<string>(&argData.userPasswordStr)->required(), "User password")
+                ("password,p",                po::value<string>(&argData.userPasswordStr)->required(), "User password")
                 ("mailbox,m", po::value<string>(&argData.mailBoxNameStr)->required(), "Mailbox name")
                 ("destination,d", po::value<string>(&argData.destinationFolderStr)->required(), "Destination for archived e-mail")
                 ("poll", po::value<int>(&argData.pollTime), "Poll time in minutes")
                 ("retry,r", po::value<int>(&argData.retryCount), "Server reconnect retry count")
+                ("log,l",po::value<string>(&argData.logFileNameStr), "Log file")
                 ("updates,u", "Search since last file archived.")
                 ("all,a", "Download files for all mailboxes.");
 

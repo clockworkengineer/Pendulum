@@ -39,6 +39,7 @@ namespace Pendulum_CommandLine {
         bool bAllMailBoxes { false };       // = true archive all mailboxes
         int pollTime { 0 };                 // Poll time in minutes
         int retryCount { 5 };               // Server reconnect retry count
+        std::string logFileNameStr;         // Log file
 
     };
 

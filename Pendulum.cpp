@@ -76,6 +76,7 @@
 // Antikythera Classes
 //
 
+#include "CRedirect.hpp"
 #include "CIMAP.hpp"
 #include "CIMAPParse.hpp"
 
@@ -102,6 +103,7 @@ namespace Pendulum {
     using namespace Pendulum_File;
 
     using namespace Antik::IMAP;
+    using namespace Antik::Util;
 
     namespace fs = boost::filesystem;
 
@@ -131,13 +133,22 @@ namespace Pendulum {
 
         try {
 
+            CRedirect logFile{std::cout};
             ServerConn imapConnection;
             vector<MailBoxDetails> mailBoxList;
              
             // Setup argument data
             
             ParamArgData argumentData { fetchCommandLineArgs(argc, argv) };
- 
+
+            // Output to log file ( CRedirect(std::cout) is the simplest solution). Once the try is exited
+            // CRedirect object will be destroyed and cout restored.
+
+            if (!argumentData.logFileNameStr.empty()) {
+                logFile.change(argumentData.logFileNameStr, std::ios_base::out | std::ios_base::app);
+                cout << std::string(100, '=') << endl;;
+            }
+
             // Initialize CIMAP internals
 
             CIMAP::init();
