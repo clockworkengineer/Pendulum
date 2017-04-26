@@ -215,6 +215,8 @@ namespace Pendulum_MailBox {
 
             if (parsedResponse) {
 
+                // Ignore mailbox with attribute no select
+                
                 for (auto& mailBoxEntry : parsedResponse->mailBoxList) {
                     if (mailBoxEntry.attributesStr.find("\\Noselect") == string::npos) {
                         mailBoxList.push_back( { mailBoxEntry.mailBoxNameStr, 0} );
@@ -249,32 +251,38 @@ namespace Pendulum_MailBox {
     vector<uint64_t> fetchMailBoxMessages(ServerConn& imapConnection, const MailBoxDetails& mailBoxEntry) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
-        string commandStr;
-        vector<uint64_t> messageID { 0 };
+        vector<uint64_t> messageID {};
 
         cout << "MAIL BOX [" << mailBoxEntry.nameStr << "]" << endl;
 
-        // SELECT mailbox
+        // SELECT mailbox (ignore response)
 
         parsedResponse = sendCommandRetry(imapConnection, "SELECT " + mailBoxEntry.nameStr);
 
-        // SEARCH for all present email and then create an archive for them.
+        // SEARCH for all or new e-mail messages
 
-        if (mailBoxEntry.searchUID != 0) {
-            cout << "Searching from [" << to_string(mailBoxEntry.searchUID) << "]" << endl;
-            commandStr = "UID SEARCH " + to_string(mailBoxEntry.searchUID) + ":*";
-        } else {
-            commandStr = "UID SEARCH 1:*";
+        uint64_t searchUID { mailBoxEntry.searchUID };
+        if (searchUID == 0) {
+            searchUID++; // Search from 1 (all messages)
         }
+        
+        cout << "Searching from UID [" << to_string(searchUID) << "]" << endl;
+        
+        parsedResponse = sendCommandRetry(imapConnection, "UID SEARCH " + to_string(searchUID) + ":*");
 
-        parsedResponse = sendCommandRetry(imapConnection, commandStr);
+        // Parse response and create vector of message UID(s)
+        
         if (parsedResponse) {
-            if ((parsedResponse->indexes.size() == 1) && (parsedResponse->indexes[0] == mailBoxEntry.searchUID)) {
-                parsedResponse->indexes.clear();
+            
+            for (auto uid :  parsedResponse->indexes) {
+                if (uid != mailBoxEntry.searchUID) {
+                   messageID.push_back(uid); 
+                }
             }
+            
         }
 
-        return (parsedResponse->indexes);
+        return (messageID);
 
     }
 
