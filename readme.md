@@ -6,17 +6,17 @@ This program is based on the code for example program ArchiveMailBox but has bee
 
 **Parameters:**
 
-    Pendulum Example Application
+    Pendulum Email Archiver
     Program Options:
       --help   Print help messages
       -c [ --config ] arg  	   Config File Name
       -s [ --server ] arg	   IMAP Server URL and port
-      -u [ --user ] arg		   Account username
+      -u [ --user ] arg        Account username
       -p [ --password ] arg	   User password
       -m [ --mailbox ] arg 	   Mailbox name (or mailbox comma separated list)
       -d [ --destination ] arg Destination folder for archived e-mail
-      --poll arg   			   Poll time in minutes
-      -r [ --retry ] arg  	   Server reconnect retry count
-      -l [ --log ] arg		   Log file
-      -u [ --updates ] 		   Search since last file archived.
-      -a [ --all ] 			   Download files for all mailboxes.
+      --poll arg               Poll time in minutes
+      -r [ --retry ] arg       Server reconnect retry count
+      -l [ --log ] arg         Log file
+      -u [ --updates ]         Search since last file archived.
+      -a [ --all ]             Download files for all mailboxes.

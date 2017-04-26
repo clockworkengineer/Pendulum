@@ -119,7 +119,7 @@ namespace Pendulum_CommandLine {
             // Display options and exit with success
 
             if (vm.count("help")) {
-                cout << "Pendulum Example Application" << endl << commandLine << endl;
+                cout << "Pendulum Email Archiver" << endl << commandLine << endl;
                 exit(EXIT_SUCCESS);
             }
 
