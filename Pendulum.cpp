@@ -154,7 +154,7 @@ namespace Pendulum {
 
             // Initialize CIMAP internals
 
-            CIMAP::init(true);
+            CIMAP::init();
 
             // Set mail account user name and password
 
