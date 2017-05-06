@@ -25,10 +25,10 @@
 namespace Pendulum_CommandLine {
 
     //
-    // Decoded program argument data.
+    // Decoded option argument data.
     //
     
-    struct ParamArgData {
+    struct PendulumOptions {
         std::string userNameStr;            // Email account user name
         std::string userPasswordStr;        // Email account user name password
         std::string serverURLStr;           // IMAP server URL
@@ -43,9 +43,8 @@ namespace Pendulum_CommandLine {
 
     };
 
-    ParamArgData fetchCommandLineArgs(int argc, char** argv);
+    PendulumOptions fetchCommandLineOptions(int argc, char** argv);
 
 } // namespace Pendulum_CommandLine
-
 #endif /* PENDULUM_COMMANDLINE_HPP */
 

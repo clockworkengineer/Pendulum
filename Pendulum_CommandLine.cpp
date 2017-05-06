@@ -67,7 +67,7 @@ namespace Pendulum_CommandLine {
     // Add options common to both command line and config file
     //
 
-    static void addCommonOptions(po::options_description& commonOptions, ParamArgData& argData) {
+    static void addCommonOptions(po::options_description& commonOptions, PendulumOptions& argData) {
 
         commonOptions.add_options()
                 ("server,s", po::value<string>(&argData.serverURLStr)->required(), "IMAP Server URL and port")
@@ -88,31 +88,31 @@ namespace Pendulum_CommandLine {
     // ================
 
     //
-    // Read in and process command line arguments using boost.
+    // Read in and process command line options using boost.
     //
 
-    ParamArgData fetchCommandLineArgs(int argc, char** argv) {
+    PendulumOptions fetchCommandLineOptions(int argc, char** argv) {
 
-        ParamArgData argumentData;
+        PendulumOptions optionData;
 
         // Define and parse the program options
 
         po::options_description commandLine("Program Options");
         commandLine.add_options()
                 ("help", "Print help messages")
-                ("config,c", po::value<string>(&argumentData.configFileNameStr)->required(), "Config File Name");
+                ("config,c", po::value<string>(&optionData.configFileNameStr)->required(), "Config File Name");
 
-        addCommonOptions(commandLine, argumentData);
+        addCommonOptions(commandLine, optionData);
 
         po::options_description configFile("Config Files Options");
 
-        addCommonOptions(configFile, argumentData);
+        addCommonOptions(configFile, optionData);
 
         po::variables_map vm {};
 
         try {
 
-            // Process arguments
+            // Process options
 
             po::store(po::parse_command_line(argc, argv, commandLine), vm);
 
@@ -137,13 +137,13 @@ namespace Pendulum_CommandLine {
             // Search for new e-mails only
 
             if (vm.count("updates")) {
-                argumentData.bOnlyUpdates = true;
+                optionData.bOnlyUpdates = true;
             }
 
             // Download all mailboxes
 
             if (vm.count("all")) {
-                argumentData.bAllMailBoxes = true;
+                optionData.bAllMailBoxes = true;
             }
 
             po::notify(vm);
@@ -154,7 +154,7 @@ namespace Pendulum_CommandLine {
             exit(EXIT_FAILURE);
         }
 
-        return(argumentData);
+        return(optionData);
         
     }
 

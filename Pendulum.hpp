@@ -31,6 +31,5 @@ namespace Pendulum {
     int archiveEmail(int argc, char** argv);
 
 }
-
 #endif /* PENDULUM_HPP */
 

@@ -52,7 +52,7 @@ namespace Pendulum_MailBox {
     // IMAP server connection data
     //
     
-    struct ServerConn {
+    struct ServerConnection {
         CIMAP server;                    // IMAP server connection
         std::string reconnectMailBoxStr; // Reconnect select mailbox
         int connectCount { 0 };          // Connection count
@@ -70,27 +70,26 @@ namespace Pendulum_MailBox {
     // Initial server connect with retry
     //
     
-    void serverConnect(ServerConn& imapConnection);
+    void serverConnect(ServerConnection& imapConnection);
 
     //
     // Return a vector of mailbox names to be processed
     //
     
-    std::vector<MailBoxDetails> fetchMailBoxList(ServerConn& imapConnection, const std::string& mailBoxNameStr, bool bAllMailBoxes);
+    std::vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const std::string& mailBoxNameStr, bool bAllMailBoxes);
 
     //
     // Return a vector of e-mail  UIDs to be archived (.eml file created).
     //
     
-    std::vector<uint64_t> fetchMailBoxMessages(ServerConn& imapConnection, const MailBoxDetails& mailBoxEntry);
+    std::vector<uint64_t> fetchMailBoxMessages(ServerConnection& imapConnection, const MailBoxDetails& mailBoxEntry);
 
     //
     // Return string pair of an e-mails subject line and contents.
     //
     
-    std::pair<std::string, std::string> fetchEmailContents(ServerConn& imapConnection, std::uint64_t uid);
+    std::pair<std::string, std::string> fetchEmailContents(ServerConnection& imapConnection, std::uint64_t uid);
 
 } // namespace Pendulum_MailBox
-
 #endif /* PENDULUM_MAILBOX_HPP */
 

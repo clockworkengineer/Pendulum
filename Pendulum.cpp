@@ -19,11 +19,14 @@
 // A file (.eml) is created for each e-mail in a folder with the same name as its mailbox; 
 // the files name being a combination of the mails UID/index prefix and the subject name. If configured
 // it will poll the server every X minutes to archive any new mail. Lastly if the server disconnects it
-// will retry the connection up to --retry times before failing with an error. 
+// will retry the connection up to --retry times before failing with an error. The method used to search
+// for updates relies on the mail UID being stored as part of the file name and is not sophisticated 
+// to keep 100% accuracy. It should will not miss mail but will fail to keep in sync with mail that is
+// moved from one mailbox to another.
 //
 // This program is based on the code for example program ArchiveMailBox but has been re-factored 
-// heavily to enable easier future development. All parameters and their meaning are obtained by running 
-// he program with the parameter --help.
+// heavily to enable easier future development. All options and their meaning are obtained by running 
+// he program with the option --help.
 //
 // Pendulum Example Application
 // Program Options:
@@ -134,33 +137,33 @@ namespace Pendulum {
         try {
 
             CRedirect logFile{std::cout};
-            ServerConn imapConnection;
+            ServerConnection imapConnection;
             vector<MailBoxDetails> mailBoxList;
              
-            // Setup argument data
+            // Setup option data
             
-            ParamArgData argumentData { fetchCommandLineArgs(argc, argv) };
+            PendulumOptions optionData { fetchCommandLineOptions(argc, argv) };
 
             // Output to log file ( CRedirect(std::cout) is the simplest solution). Once the try is exited
             // CRedirect object will be destroyed and cout restored.
 
-            if (!argumentData.logFileNameStr.empty()) {
-                logFile.change(argumentData.logFileNameStr, std::ios_base::out | std::ios_base::app);
+            if (!optionData.logFileNameStr.empty()) {
+                logFile.change(optionData.logFileNameStr, std::ios_base::out | std::ios_base::app);
                 cout << std::string(100, '=') << endl;;
             }
 
             // Initialize CIMAP internals
 
-            CIMAP::init();
+            CIMAP::init(true);
 
             // Set mail account user name and password
 
-            imapConnection.server.setServer(argumentData.serverURLStr);
-            imapConnection.server.setUserAndPassword(argumentData.userNameStr, argumentData.userPasswordStr);
+            imapConnection.server.setServer(optionData.serverURLStr);
+            imapConnection.server.setUserAndPassword(optionData.userNameStr, optionData.userPasswordStr);
             
             // Set retry count
             
-            imapConnection.retryCount = argumentData.retryCount;
+            imapConnection.retryCount = optionData.retryCount;
             
             do {
 
@@ -177,7 +180,7 @@ namespace Pendulum {
                 // Create mailbox list if doesn't exist
 
                 if (mailBoxList.empty()) {
-                    mailBoxList = fetchMailBoxList(imapConnection, argumentData.mailBoxNameStr, argumentData.bAllMailBoxes);
+                    mailBoxList = fetchMailBoxList(imapConnection, optionData.mailBoxNameStr, optionData.bAllMailBoxes);
                 }
                 
                 // Process mailboxes
@@ -191,12 +194,12 @@ namespace Pendulum {
                     // Set mailbox archive folder
 
                     if (mailBoxEntry.pathStr.empty()) {
-                        mailBoxEntry.pathStr = createMailboxFolder(argumentData.destinationFolderStr, mailBoxEntry.nameStr);
+                        mailBoxEntry.pathStr = createMailboxFolder(optionData.destinationFolderStr, mailBoxEntry.nameStr);
                     }
                     
                      // If only updates specified find highest UID to search from
 
-                    if (argumentData.bOnlyUpdates && (imapConnection.connectCount==0)) {                       
+                    if (optionData.bOnlyUpdates && (imapConnection.connectCount==0)) {                       
                         mailBoxEntry.searchUID = getNewestUID(mailBoxEntry.pathStr);
                     }
 
@@ -226,7 +229,7 @@ namespace Pendulum {
 
                 // Disconnect from server
 
-                cout << "Disconnecting from server [" << argumentData.serverURLStr << "]" << endl;
+                cout << "Disconnecting from server [" << optionData.serverURLStr << "]" << endl;
 
                 imapConnection.server.disconnect();
                 
@@ -236,21 +239,21 @@ namespace Pendulum {
                 
                 // Wait poll interval (pollTime == 0 then one pass)
 
-                std::this_thread::sleep_for(std::chrono::minutes(argumentData.pollTime));
+                std::this_thread::sleep_for(std::chrono::minutes(optionData.pollTime));
 
-            } while (argumentData.pollTime);
+            } while (optionData.pollTime);
 
         //
         // Catch any errors
         //    
 
-        } catch (CIMAP::Exception &e) {
+        } catch (const CIMAP::Exception &e) {
             exitWithError(e.what());
-        } catch (CIMAPParse::Exception &e) {
+        } catch (const CIMAPParse::Exception &e) {
             exitWithError(e.what());
         } catch (const fs::filesystem_error & e) {
             exitWithError(string("BOOST file system exception occured: [") + e.what() + "]");
-        } catch (exception & e) {
+        } catch (const exception & e) {
             exitWithError(string("Standard exception occured: [") + e.what() + "]");
         }
 

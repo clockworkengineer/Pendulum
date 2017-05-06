@@ -71,7 +71,7 @@ namespace Pendulum_MailBox {
     // server disconnect or command error are also signaled by an exception.
     //
 
-    static CIMAPParse::COMMANDRESPONSE sendCommand(ServerConn& imapConnection, const string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommand(ServerConnection& imapConnection, const string& commandStr) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
@@ -103,7 +103,7 @@ namespace Pendulum_MailBox {
     // Reconnect to IMAP server and select passed in (current) mailbox. 
     //
     
-    static void serverReconnect(ServerConn& imapConnection) {
+    static void serverReconnect(ServerConnection& imapConnection) {
 
         serverConnect(imapConnection);
 
@@ -122,7 +122,7 @@ namespace Pendulum_MailBox {
     // and resend command even if it was successful.
     //
     
-    static CIMAPParse::COMMANDRESPONSE sendCommandRetry(ServerConn& imapConnection, const string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommandRetry(ServerConnection& imapConnection, const string& commandStr) {
         
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
@@ -159,7 +159,7 @@ namespace Pendulum_MailBox {
     // Connect to IMAP server (performing retryCount times until successful).
     //
     
-    void serverConnect(ServerConn& imapConnection) {
+    void serverConnect(ServerConnection& imapConnection) {
 
         std::exception_ptr thrownException { nullptr };
         int retryCount {imapConnection.retryCount };
@@ -201,7 +201,7 @@ namespace Pendulum_MailBox {
     // place into vector of mailbox name strings to be returned.
     //
 
-    vector<MailBoxDetails> fetchMailBoxList(ServerConn& imapConnection, const string& mailBoxNameStr, bool bAllMailBoxes) {
+    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxNameStr, bool bAllMailBoxes) {
 
         vector<MailBoxDetails> mailBoxList;
 
@@ -248,7 +248,7 @@ namespace Pendulum_MailBox {
     // a vector of their  UIDs.
     //
 
-    vector<uint64_t> fetchMailBoxMessages(ServerConn& imapConnection, const MailBoxDetails& mailBoxEntry) {
+    vector<uint64_t> fetchMailBoxMessages(ServerConnection& imapConnection, const MailBoxDetails& mailBoxEntry) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
         vector<uint64_t> messageID {};
@@ -275,7 +275,7 @@ namespace Pendulum_MailBox {
         if (parsedResponse) {
             
             for (auto uid :  parsedResponse->indexes) {
-                if (uid != mailBoxEntry.searchUID) {
+                if (uid > mailBoxEntry.searchUID) {
                    messageID.push_back(uid); 
                 }
             }
@@ -290,7 +290,7 @@ namespace Pendulum_MailBox {
     // For a given message UID fetch its subject line and body and return as a pair.
     //
 
-    pair<string, string> fetchEmailContents(ServerConn& imapConnection, uint64_t uid) {
+    pair<string, string> fetchEmailContents(ServerConnection& imapConnection, uint64_t uid) {
 
         string subjectStr;
         string emailBodyStr;

@@ -41,6 +41,5 @@ namespace Pendulum_File {
     
 
 } // namespace Pendulum_File
-
 #endif /* PENDULUM_FILE_HPP */
 
