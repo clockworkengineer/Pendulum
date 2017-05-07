@@ -268,7 +268,7 @@ namespace Pendulum_MailBox {
         
         cout << "Searching from UID [" << to_string(searchUID) << "]" << endl;
         
-        parsedResponse = sendCommandRetry(imapConnection, "UID SEARCH " + to_string(searchUID) + ":*");
+        parsedResponse = sendCommandRetry(imapConnection, "UID SEARCH UID " + to_string(searchUID) + ":*");
 
         // Parse response and create vector of message UID(s)
         

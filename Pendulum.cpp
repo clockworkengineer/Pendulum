@@ -84,7 +84,7 @@
 #include "CIMAPParse.hpp"
 
 //
-// Boost file system and iterator definitions
+// Boost file system definitions
 //
 
 #include <boost/filesystem.hpp>
