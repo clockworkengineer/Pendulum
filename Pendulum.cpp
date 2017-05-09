@@ -180,7 +180,7 @@ namespace Pendulum {
                 // Create mailbox list if doesn't exist
 
                 if (mailBoxList.empty()) {
-                    mailBoxList = fetchMailBoxList(imapConnection, optionData.mailBoxNameStr, optionData.bAllMailBoxes);
+                    mailBoxList = fetchMailBoxList(imapConnection, optionData.mailBoxListStr, optionData.ignoreListStr, optionData.bAllMailBoxes);
                 }
                 
                 // Process mailboxes

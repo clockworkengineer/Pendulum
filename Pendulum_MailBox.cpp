@@ -32,6 +32,7 @@
 //
 
 #include <iostream>
+#include <algorithm>
 
 //
 // Pendulum mailbox definitions.
@@ -201,10 +202,25 @@ namespace Pendulum_MailBox {
     // place into vector of mailbox name strings to be returned.
     //
 
-    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxNameStr, bool bAllMailBoxes) {
+    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxListStr,  const std::string& ignoreListStr, bool bAllMailBoxes) {
 
         vector<MailBoxDetails> mailBoxList;
+        vector<string> ignoreList;
 
+        // Create mailbox ignore list
+        
+        if (!ignoreListStr.empty()) { 
+            
+            istringstream ignoreListStream { ignoreListStr };
+            
+            for (string ignoreMailboxStr; getline(ignoreListStream, ignoreMailboxStr, ',');) {
+                ignoreMailboxStr = ignoreMailboxStr.substr(ignoreMailboxStr.find_first_not_of(' '));
+                ignoreMailboxStr = ignoreMailboxStr.substr(0, ignoreMailboxStr.find_last_not_of(' ') + 1);
+                ignoreList.push_back(ignoreMailboxStr );
+            } 
+            
+        }
+        
         if (bAllMailBoxes) {
             
             CIMAPParse::COMMANDRESPONSE parsedResponse;
@@ -215,11 +231,14 @@ namespace Pendulum_MailBox {
 
             if (parsedResponse) {
 
-                // Ignore mailbox with attribute no select
+                // Ignore mailbox with attribute no select or that is on ignore list
                 
                 for (auto& mailBoxEntry : parsedResponse->mailBoxList) {
-                    if (mailBoxEntry.attributesStr.find("\\Noselect") == string::npos) {
+                    if ((std::find(ignoreList.begin(), ignoreList.end(), mailBoxEntry.mailBoxNameStr) == ignoreList.end()) &&
+                        (mailBoxEntry.attributesStr.find("\\Noselect") == string::npos)) {
                         mailBoxList.push_back( { mailBoxEntry.mailBoxNameStr, 0} );
+                    } else {
+                        cout << "Ignoring mailbox [" << mailBoxEntry.mailBoxNameStr << "]" << endl;                       
                     }
                 }
 
@@ -229,12 +248,16 @@ namespace Pendulum_MailBox {
             
             // Add mailbox list from config file or command line parameter
             
-            istringstream mailBoxStream { mailBoxNameStr };
+            istringstream mailBoxStream { mailBoxListStr };
             
             for (string mailBoxStr; getline(mailBoxStream, mailBoxStr, ',');) {
                 mailBoxStr = mailBoxStr.substr(mailBoxStr.find_first_not_of(' '));
                 mailBoxStr = mailBoxStr.substr(0, mailBoxStr.find_last_not_of(' ') + 1);
-                mailBoxList.push_back({ mailBoxNameStr, 0} );
+                if (std::find(ignoreList.begin(), ignoreList.end(), mailBoxStr) == ignoreList.end()) {
+                    mailBoxList.push_back({ mailBoxStr, 0} );
+                } else {
+                    cout << "Ignoring mailbox [" << mailBoxStr << "]" << endl;
+                }
             }
             
         }

@@ -32,7 +32,7 @@ namespace Pendulum_CommandLine {
         std::string userNameStr;            // Email account user name
         std::string userPasswordStr;        // Email account user name password
         std::string serverURLStr;           // IMAP server URL
-        std::string mailBoxNameStr;         // Mailbox name
+        std::string mailBoxListStr;         // Mailbox list
         std::string destinationFolderStr;   // Destination folder for attachments
         std::string configFileNameStr;      // Configuration file name
         bool bOnlyUpdates { false };        // = true search from UID of last .eml archived
@@ -40,7 +40,7 @@ namespace Pendulum_CommandLine {
         int pollTime { 0 };                 // Poll time in minutes
         int retryCount { 5 };               // Server reconnect retry count
         std::string logFileNameStr;         // Log file
-
+        std::string ignoreListStr;          // Mailbox ignore list
     };
 
     PendulumOptions fetchCommandLineOptions(int argc, char** argv);
