@@ -100,11 +100,11 @@ namespace Pendulum_File {
     // Create .eml for downloaded email.
     //
 
-    void createEMLFile(const pair<string, string>& emailContents, uint64_t index, const string& destFolderStr) {
+    void createEMLFile(const pair<string, string>& emailContents, uint64_t uid, const string& destFolderStr) {
 
         if (!emailContents.second.empty()) {
             fs::path fullFilePath { destFolderStr };
-            fullFilePath /= "(" + to_string(index) + ") " + emailContents.first + Pendulum::kEMLFileExt;
+            fullFilePath /= "(" + to_string(uid) + ") " + emailContents.first + Pendulum::kEMLFileExtStr;
             if (!fs::exists(fullFilePath)) {
                 istringstream emailBodyStream { emailContents.second };
                 ofstream emlFileStream { fullFilePath.string(), ios::binary };
@@ -136,7 +136,7 @@ namespace Pendulum_File {
             fs::path destPath { destFolderStr };
             
             for (auto& entry : boost::make_iterator_range(fs::directory_iterator(destPath),{})) {
-                if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExt) == 0)) {
+                if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExtStr) == 0)) {
                     std::string uidStr { entry.path().filename().string()};
                     uidStr = uidStr.substr(uidStr.find_first_of(('('))+1);
                     uidStr = uidStr.substr(0, uidStr.find_first_of((')')));

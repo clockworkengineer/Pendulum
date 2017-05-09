@@ -20,9 +20,9 @@
 // the files name being a combination of the mails UID/index prefix and the subject name. If configured
 // it will poll the server every X minutes to archive any new mail. Lastly if the server disconnects it
 // will retry the connection up to --retry times before failing with an error. The method used to search
-// for updates relies on the mail UID being stored as part of the file name and is not sophisticated 
-// to keep 100% accuracy. It should will not miss mail but will fail to keep in sync with mail that is
-// moved from one mailbox to another.
+// for updates relies on the mail UID being stored as part of the file name and is not sophisticated enough
+// to keep 100% accuracy. It should  not miss mail but will fail to keep in sync with mail that is
+// moved from one mailbox to another after it has already been archived.
 //
 // This program is based on the code for example program ArchiveMailBox but has been re-factored 
 // heavily to enable easier future development. All options and their meaning are obtained by running 
@@ -252,9 +252,9 @@ namespace Pendulum {
         } catch (const CIMAPParse::Exception &e) {
             exitWithError(e.what());
         } catch (const fs::filesystem_error & e) {
-            exitWithError(string("BOOST file system exception occured: [") + e.what() + "]");
+            exitWithError(string("BOOST file system exception: [") + e.what() + "]");
         } catch (const exception & e) {
-            exitWithError(string("Standard exception occured: [") + e.what() + "]");
+            exitWithError(string("Standard exception: [") + e.what() + "]");
         }
 
         // IMAP closedown

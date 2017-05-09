@@ -31,7 +31,7 @@ namespace Pendulum_File {
     // Create .eml file for a given e-mail message
     //
 
-    void createEMLFile(const std::pair<std::string, std::string>& emailContents, std::uint64_t index, const std::string& destFolderStr);
+    void createEMLFile(const std::pair<std::string, std::string>& emailContents, std::uint64_t uid, const std::string& destFolderStr);
 
     //
     // Return the UID of the newest e-mail message archived for a mailbox.

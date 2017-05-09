@@ -72,7 +72,7 @@ namespace Pendulum_CommandLine {
         commonOptions.add_options()
                 ("server,s", po::value<string>(&argData.serverURLStr)->required(), "IMAP Server URL and port")
                 ("user,u", po::value<string>(&argData.userNameStr)->required(), "Account username")
-                ("password,p",                po::value<string>(&argData.userPasswordStr)->required(), "User password")
+                ("password,p", po::value<string>(&argData.userPasswordStr)->required(), "User password")
                 ("mailbox,m", po::value<string>(&argData.mailBoxNameStr)->required(), "Mailbox name (or mailbox comma separated list)")
                 ("destination,d", po::value<string>(&argData.destinationFolderStr)->required(), "Destination folder for archived e-mail")
                 ("poll", po::value<int>(&argData.pollTime), "Poll time in minutes")
@@ -149,8 +149,7 @@ namespace Pendulum_CommandLine {
             po::notify(vm);
 
         } catch (po::error& e) {
-            cerr << "Pendulum Error: " << e.what() << endl << endl;
-            cerr << commandLine << endl;
+            cerr << "Pendulum Error: " << e.what() << "\n" << endl;
             exit(EXIT_FAILURE);
         }
 
