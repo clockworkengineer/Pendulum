@@ -202,7 +202,8 @@ namespace Pendulum_MailBox {
     // place into vector of mailbox name strings to be returned.
     //
 
-    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxListStr,  const std::string& ignoreListStr, bool bAllMailBoxes) {
+    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxListStr,  
+                           const std::string& ignoreListStr, bool bAllMailBoxes) {
 
         vector<MailBoxDetails> mailBoxList;
         vector<string> ignoreList;

@@ -76,7 +76,8 @@ namespace Pendulum_MailBox {
     // Return a vector of mailbox names to be processed
     //
     
-    std::vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const std::string& mailBoxListStr, const std::string& ignoreListStr, bool bAllMailBoxes);
+    std::vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const std::string& mailBoxListStr, 
+                                                 const std::string& ignoreListStr, bool bAllMailBoxes);
 
     //
     // Return a vector of e-mail  UIDs to be archived (.eml file created).

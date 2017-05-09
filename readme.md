@@ -18,5 +18,13 @@ This program is based on the code for example program ArchiveMailBox but has bee
       --poll arg               Poll time in minutes
       -r [ --retry ] arg       Server reconnect retry count
       -l [ --log ] arg         Log file
+      -i [ --ignore ] arg      Ignore mailbox list
       -u [ --updates ]         Search since last file archived.
       -a [ --all ]             Download files for all mailboxes.
+
+## To Do List ##
+
+1. Addition of mailbox ignore list for use with –all so that for instance Deleted/Junk/Spam mailboxes are not archived.
+1. The ability to work with multiple servers
+1. Use of threads.
+1. Qt based UI (Know little about Qt but it looks like the best choice for a portable/flexible way to provide a cross platform user interface).
