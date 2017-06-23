@@ -58,7 +58,7 @@
 // =============
 
 //
-// C++ STL definitions
+// C++ STL
 //
 
 #include <iostream>
@@ -84,7 +84,7 @@
 #include "CIMAPParse.hpp"
 
 //
-// Boost file system definitions
+// Boost file system
 //
 
 #include <boost/filesystem.hpp>

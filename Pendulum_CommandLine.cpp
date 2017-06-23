@@ -26,19 +26,19 @@
 // =============
 
 //
-// C++ STL definitions
+// C++ STL
 //
 
 #include <iostream>
 
 //
-// Pendulum_CommandLine namespace definitions
+// Pendulum_CommandLine namespace
 //
 
 #include "Pendulum_CommandLine.hpp"
 
 //
-// Boost file system & program options definitions
+// Boost file system & program options
 //
 
 #include "boost/program_options.hpp" 

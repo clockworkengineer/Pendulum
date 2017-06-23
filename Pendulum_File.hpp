@@ -13,7 +13,7 @@
 #define PENDULUM_FILE_HPP
 
 //
-// C++ STL definitions
+// C++ STL
 //
 
 #include <string>

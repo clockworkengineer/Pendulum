@@ -28,14 +28,14 @@
 // =============
 
 //
-// C++ STL definitions
+// C++ STL
 //
 
 #include <iostream>
 #include <algorithm>
 
 //
-// Pendulum mailbox definitions.
+// Pendulum mailbox.
 //
 
 #include "Pendulum_MailBox.hpp"

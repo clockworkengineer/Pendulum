@@ -13,7 +13,7 @@
 #define PENDULUM_MAILBOX_HPP
 
 //
-// C++ STL definitions
+// C++ STL
 //
 
 #include <string>

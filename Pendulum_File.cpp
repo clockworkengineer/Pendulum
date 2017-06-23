@@ -26,7 +26,7 @@
 // =============
 
 //
-// C++ STL definitions
+// C++ STL
 //
 
 #include <iostream>
@@ -34,14 +34,14 @@
 #include <sstream>
 
 //
-// Pendulum and Pendulum File definitions
+// Pendulum and Pendulum File
 //
 
 #include "Pendulum.hpp"
 #include "Pendulum_File.hpp"
 
 //
-// Boost file system & range iterator definitions
+// Boost file system & range iterator
 //
 
 #include <boost/filesystem.hpp>
