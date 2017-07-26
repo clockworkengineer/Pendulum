@@ -20,14 +20,12 @@ public:
     void setConnectionName(const QString& connectionName);
 
 private slots:
-    void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
-    void on_pushButton_3_clicked();
-    void on_pushButton_4_clicked();
-
-    void on_listWidget_clicked(const QModelIndex &index);
-
-    void on_listWidget_doubleClicked(const QModelIndex &index);
+    void on_newConnection_clicked();
+    void on_editConnection_clicked();
+    void on_deleteConnection_clicked();
+    void on_connect_clicked();
+    void on_connectionList_clicked(const QModelIndex &index);
+    void on_connectionList_doubleClicked(const QModelIndex &index);
 
 private:
 

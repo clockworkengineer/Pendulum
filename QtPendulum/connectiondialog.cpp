@@ -11,7 +11,7 @@ ConnectionDialog::ConnectionDialog(const QString& connectionName, QWidget *paren
 
     this->setWindowTitle(this->connectionName);
 
-    ui->textEdit->setReadOnly(true);
+    ui->connectionOutput->setReadOnly(true);
 
     QSettings pendulumSettings;
 
@@ -62,7 +62,7 @@ void ConnectionDialog::processOutput()
 
     foreach (QString line, strLines){
         if (!line.isEmpty())  {
-            ui->textEdit->append(line);
+            ui->connectionOutput->append(line);
         }
     }
 
@@ -77,7 +77,7 @@ void ConnectionDialog::processError()
     foreach (QString line, strLines){
         if (!line.isEmpty()) {
             if (line.endsWith("\r"))   line.chop(1);
-            ui->textEdit->append(line);
+            ui->connectionOutput->append(line);
         }
     }
 }
@@ -85,7 +85,7 @@ void ConnectionDialog::processError()
 void ConnectionDialog::processFinished(int exitCode)
 {
 
-    //this->close();
+    this->close();
 
 }
 

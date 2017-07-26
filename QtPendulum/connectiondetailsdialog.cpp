@@ -41,21 +41,21 @@ void ConnectionDetailsDialog::setConnectionName(const QString &connectionName)
     this->connectionName = connectionName;
 }
 
-void ConnectionDetailsDialog::on_pushButton_clicked()
+void ConnectionDetailsDialog::on_saveButton_clicked()
 {
     // Save
 
-    this->connectionName = ui->lineEdit_6->text();
-    this->serverURL = ui->lineEdit->text();
-    this->userName = ui->lineEdit_2->text();
-    this->password = ui->lineEdit_3->text();
-    this->mailBoxList = ui->lineEdit_4->text();
-    this->destinationFolder = ui->lineEdit_5->text();
-    this->upates = (ui->checkBox->checkState() == Qt::Checked) ? true : false;
-    this->allMailBoxes = (ui->checkBox_2->checkState() == Qt::Checked) ? true : false;
-    this->pollTime = ui->spinBox->value();
-    this->retryCount = ui->spinBox_2->value();
-    this->mailBoxIgnoreList = ui->lineEdit_7->text();
+    this->connectionName = ui->connectionName->text();
+    this->serverURL = ui->serverURL->text();
+    this->userName = ui->userName->text();
+    this->password = ui->password->text();
+    this->mailBoxList = ui->mailBoxList->text();
+    this->destinationFolder = ui->destinationFolder->text();
+    this->upates = (ui->updates->checkState() == Qt::Checked) ? true : false;
+    this->allMailBoxes = (ui->all->checkState() == Qt::Checked) ? true : false;
+    this->pollTime = ui->pollTime->value();
+    this->retryCount = ui->retryCount->value();
+    this->mailBoxIgnoreList = ui->ignoreList->text();
 
     QSettings pendulumSettings;
 
@@ -75,30 +75,31 @@ void ConnectionDetailsDialog::on_pushButton_clicked()
     this->close();
 }
 
-void ConnectionDetailsDialog::on_pushButton_2_clicked()
+void ConnectionDetailsDialog::on_cancelButton_clicked()
 {
     // Cancel
 
     this->close();
+
 }
 
 void ConnectionDetailsDialog::showEvent( QShowEvent* event ) {
     QWidget::showEvent( event );
 
     if (!this->connectionName.isEmpty()) {
-        ui->lineEdit_6->setEnabled(false);
+        ui->connectionName->setEnabled(false);
     }
 
-    ui->lineEdit_6->setText(this->connectionName);
-    ui->lineEdit->setText(this->serverURL);
-    ui->lineEdit_2->setText(this->userName);
-    ui->lineEdit_3->setText(this->password);
-    ui->lineEdit_4->setText(this->mailBoxList);
-    ui->lineEdit_5->setText(this->destinationFolder);
-    ui->checkBox->setChecked(this->upates);
-    ui->checkBox_2->setChecked(this->allMailBoxes);
-    ui->spinBox->setValue(this->pollTime);
-    ui->spinBox_2->setValue(this->retryCount);
-    ui->lineEdit_7->setText(this->mailBoxIgnoreList);
+    ui->connectionName->setText(this->connectionName);
+    ui->serverURL->setText(this->serverURL);
+    ui->userName->setText(this->userName);
+    ui->password->setText(this->password);
+    ui->mailBoxList->setText(this->mailBoxList);
+    ui->destinationFolder->setText(this->destinationFolder);
+    ui->updates->setChecked(this->upates);
+    ui->all->setChecked(this->allMailBoxes);
+    ui->pollTime->setValue(this->pollTime);
+    ui->retryCount->setValue(this->retryCount);
+    ui->ignoreList->setText(this->mailBoxIgnoreList);
 
 }

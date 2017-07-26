@@ -14,11 +14,11 @@ PendulumMainWindow::PendulumMainWindow(QWidget *parent) :
 
     this->loadConnectionList();
 
-    ui->listWidget->addItems(this->connectionList);
+    ui->connectionList->addItems(this->connectionList);
 
-    ui->pushButton_2->setEnabled(false);
-    ui->pushButton_3->setEnabled(false);
-    ui->pushButton_4->setEnabled(false);
+    ui->editConnection->setEnabled(false);
+    ui->deleteConnection->setEnabled(false);
+    ui->connect->setEnabled(false);
 
     QSettings pendulumSettings;
     restoreGeometry(pendulumSettings.value("geometry").toByteArray());
@@ -31,7 +31,7 @@ PendulumMainWindow::~PendulumMainWindow()
     delete ui;
 }
 
-void PendulumMainWindow::on_pushButton_clicked()
+void PendulumMainWindow::on_newConnection_clicked()
 {
     // New
 
@@ -47,11 +47,11 @@ void PendulumMainWindow::on_pushButton_clicked()
 
 }
 
-void PendulumMainWindow::on_pushButton_2_clicked()
+void PendulumMainWindow::on_editConnection_clicked()
 {
     // Edit
 
-    QListWidgetItem *connectionToEdit= ui->listWidget->currentItem();
+    QListWidgetItem *connectionToEdit= ui->connectionList->currentItem();
 
     if(connectionToEdit != nullptr) {
 
@@ -64,11 +64,11 @@ void PendulumMainWindow::on_pushButton_2_clicked()
 
 }
 
-void PendulumMainWindow::on_pushButton_3_clicked()
+void PendulumMainWindow::on_deleteConnection_clicked()
 {
     // Delete
 
-    QListWidgetItem *connectionToDelete = ui->listWidget->currentItem();
+    QListWidgetItem *connectionToDelete = ui->connectionList->currentItem();
 
     if(connectionToDelete != nullptr) {
         QString connectionName = connectionToDelete->text();
@@ -77,6 +77,11 @@ void PendulumMainWindow::on_pushButton_3_clicked()
             this->connectionList.removeAt(connectionIndex);
             this->populateConnectionList();
         }
+        QSettings pendulumSettings;
+        pendulumSettings.beginGroup(connectionName);
+        pendulumSettings.remove("");
+        pendulumSettings.endGroup();
+
     }
 
 
@@ -85,8 +90,8 @@ void PendulumMainWindow::on_pushButton_3_clicked()
 void PendulumMainWindow::populateConnectionList()
 {
 
-    ui->listWidget->clear();
-    ui->listWidget->addItems(this->connectionList);
+    ui->connectionList->clear();
+    ui->connectionList->addItems(this->connectionList);
     this->saveConnectionList();
 
 }
@@ -122,11 +127,11 @@ void PendulumMainWindow::loadConnectionList()
 
 }
 
-void PendulumMainWindow::on_pushButton_4_clicked()
+void PendulumMainWindow::on_connect_clicked()
 {
     // Connect
 
-    QListWidgetItem *connectionToRun= ui->listWidget->currentItem();
+    QListWidgetItem *connectionToRun= ui->connectionList->currentItem();
 
     if(connectionToRun != nullptr) {
         ConnectionDialog connection(connectionToRun->text(), this);
@@ -135,17 +140,17 @@ void PendulumMainWindow::on_pushButton_4_clicked()
 }
 
 
-void PendulumMainWindow::on_listWidget_clicked(const QModelIndex &index)
+void PendulumMainWindow::on_connectionList_clicked(const QModelIndex &index)
 {
 
-    ui->pushButton_2->setEnabled(true);
-    ui->pushButton_3->setEnabled(true);
-    ui->pushButton_4->setEnabled(true);
+    ui->editConnection->setEnabled(true);
+    ui->deleteConnection->setEnabled(true);
+    ui->connect->setEnabled(true);
 
 }
 
-void PendulumMainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
+void PendulumMainWindow::on_connectionList_doubleClicked(const QModelIndex &index)
 {
-    on_pushButton_4_clicked();
+    on_connect_clicked();
 
 }

@@ -20,9 +20,8 @@ public:
     void setConnectionName(const QString& connectionName);
 
 private slots:
-    void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
+    void on_saveButton_clicked();
+    void on_cancelButton_clicked();
 
 private:
 
