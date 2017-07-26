@@ -22,9 +22,12 @@ This program is based on the code for example program ArchiveMailBox but has bee
       -u [ --updates ]         Search since last file archived.
       -a [ --all ]             Download files for all mailboxes.
 
-## To Do List ##
 
-1. Addition of mailbox ignore list for use with –all so that for instance Deleted/Junk/Spam mailboxes are not archived.
-1. The ability to work with multiple servers
-1. Use of threads.
-1. Qt based UI (Know little about Qt but it looks like the best choice for a portable/flexible way to provide a cross platform user interface).
+## Qt User Interface (QtPendulum)##
+
+A Qt based user interface is now provided that enables IMAP connections to be created, configured and launched. QtPendulum when asked to connect  will run the console based pendulum as a seperate process with all output going to a QTPendulum created window. Note: The position and state of all windows are also saved along with connection details.
+
+## To Do List #
+
+1. Encrypt all saved passwords.
+2. Add support for  OAuth 1.0/2.0 as this what gmail seems to use and more modern servers (need to find suitable libraries).
