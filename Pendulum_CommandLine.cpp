@@ -101,7 +101,7 @@ namespace Pendulum_CommandLine {
         po::options_description commandLine("Program Options");
         commandLine.add_options()
                 ("help", "Print help messages")
-                ("config,c", po::value<string>(&optionData.configFileNameStr)->required(), "Config File Name");
+                ("config,c", po::value<string>(&optionData.configFileNameStr), "Config File Name");
 
         addCommonOptions(commandLine, optionData);
 
