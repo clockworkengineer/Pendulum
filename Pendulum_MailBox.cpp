@@ -91,9 +91,9 @@ namespace Pendulum_MailBox {
         // successfully received and response parsed.
 
         if (parsedResponse->bBYESent) {
-            throw CIMAP::Exception("Received BYE from server: " + parsedResponse->errorMessageStr);
+            throw CIMAP::Exception("Received BYE from server: " + parsedResponse->errorMessage);
         } else if (parsedResponse->status != CIMAPParse::RespCode::OK) {
-            throw CIMAP::Exception(commandStr + ": " + parsedResponse->errorMessageStr);
+            throw CIMAP::Exception(commandStr + ": " + parsedResponse->errorMessage);
         }
 
         return (parsedResponse);
@@ -235,11 +235,11 @@ namespace Pendulum_MailBox {
                 // Ignore mailbox with attribute no select or that is on ignore list
                 
                 for (auto& mailBoxEntry : parsedResponse->mailBoxList) {
-                    if ((std::find(ignoreList.begin(), ignoreList.end(), mailBoxEntry.mailBoxNameStr) == ignoreList.end()) &&
-                        (mailBoxEntry.attributesStr.find("\\Noselect") == string::npos)) {
-                        mailBoxList.push_back( { mailBoxEntry.mailBoxNameStr, 0} );
+                    if ((std::find(ignoreList.begin(), ignoreList.end(), mailBoxEntry.mailBoxName) == ignoreList.end()) &&
+                        (mailBoxEntry.attributes.find("\\Noselect") == string::npos)) {
+                        mailBoxList.push_back( { mailBoxEntry.mailBoxName, 0} );
                     } else {
-                        cout << "Ignoring mailbox [" << mailBoxEntry.mailBoxNameStr << "]" << endl;                       
+                        cout << "Ignoring mailbox [" << mailBoxEntry.mailBoxName << "]" << endl;                       
                     }
                 }
 
