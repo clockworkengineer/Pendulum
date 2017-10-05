@@ -73,20 +73,20 @@ namespace Pendulum_File {
     // Create destination for mailbox archive
     //
 
-    std::string createMailboxFolder(const string& destFolderStr, const string& mailBoxNameStr) {
+    std::string createMailboxFolder(const string& destFolder, const string& mailBoxName) {
 
-        string mailBoxFolderStr { mailBoxNameStr };
+        string mailBoxFolder { mailBoxName };
 
         // Clear any quotes from mailbox name for folder name
 
-        if (mailBoxFolderStr.front() == '\"') mailBoxFolderStr = mailBoxNameStr.substr(1);
-        if (mailBoxFolderStr.back() == '\"') mailBoxFolderStr.pop_back();
+        if (mailBoxFolder.front() == '\"') mailBoxFolder = mailBoxName.substr(1);
+        if (mailBoxFolder.back() == '\"') mailBoxFolder.pop_back();
 
         // Create mailbox destination folder
 
-        fs::path mailBoxPath {destFolderStr };
+        fs::path mailBoxPath {destFolder };
         
-        mailBoxPath /= mailBoxFolderStr;
+        mailBoxPath /= mailBoxFolder;
         if (!fs::exists(mailBoxPath)) {
             cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << endl;
             fs::create_directories(mailBoxPath);
@@ -100,19 +100,19 @@ namespace Pendulum_File {
     // Create .eml for downloaded email.
     //
 
-    void createEMLFile(const pair<string, string>& emailContents, uint64_t uid, const string& destFolderStr) {
+    void createEMLFile(const pair<string, string>& emailContents, uint64_t uid, const string& destFolder) {
 
         if (!emailContents.second.empty()) {
-            fs::path fullFilePath { destFolderStr };
-            fullFilePath /= "(" + to_string(uid) + ") " + emailContents.first + Pendulum::kEMLFileExtStr;
+            fs::path fullFilePath { destFolder };
+            fullFilePath /= "(" + to_string(uid) + ") " + emailContents.first + Pendulum::kEMLFileExt;
             if (!fs::exists(fullFilePath)) {
                 istringstream emailBodyStream { emailContents.second };
                 ofstream emlFileStream { fullFilePath.string(), ios::binary };
                 if (emlFileStream.is_open()) {
                     cout << "Creating [" << fullFilePath.native() << "]" << endl;
-                    for (string lineStr; getline(emailBodyStream, lineStr, '\n');) {
-                        lineStr.push_back('\n');
-                        emlFileStream.write(&lineStr[0], lineStr.length());
+                    for (string line; getline(emailBodyStream, line, '\n');) {
+                        line.push_back('\n');
+                        emlFileStream.write(&line[0], line.length());
                     }
                 } else {
                     cerr << "Failed to create file [" << fullFilePath << "]" << endl;
@@ -127,20 +127,20 @@ namespace Pendulum_File {
     // prefix; get the Index from this.
     //
 
-    uint64_t getNewestUID(const string& destFolderStr) {
+    uint64_t getNewestUID(const string& destFolder) {
 
-        if (fs::exists(destFolderStr) && fs::is_directory(destFolderStr)) {
+        if (fs::exists(destFolder) && fs::is_directory(destFolder)) {
 
             uint64_t highestIndex { 1 };
             uint64_t currentIndex { 0 };
-            fs::path destPath { destFolderStr };
+            fs::path destPath { destFolder };
             
             for (auto& entry : boost::make_iterator_range(fs::directory_iterator(destPath),{})) {
-                if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExtStr) == 0)) {
-                    std::string uidStr { entry.path().filename().string()};
-                    uidStr = uidStr.substr(uidStr.find_first_of(('('))+1);
-                    uidStr = uidStr.substr(0, uidStr.find_first_of((')')));
-                    currentIndex = strtoull(uidStr.c_str(), nullptr, 10);
+                if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExt) == 0)) {
+                    std::string uid { entry.path().filename().string()};
+                    uid = uid.substr(uid.find_first_of(('('))+1);
+                    uid = uid.substr(0, uid.find_first_of((')')));
+                    currentIndex = strtoull(uid.c_str(), nullptr, 10);
                     if (currentIndex > highestIndex) {
                         highestIndex = currentIndex;
                     }

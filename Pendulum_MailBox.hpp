@@ -43,9 +43,9 @@ namespace Pendulum_MailBox {
     //
     
     struct MailBoxDetails {
-        std::string nameStr;        // Mailbox name
+        std::string name;        // Mailbox name
         std::uint64_t searchUID;    // Current search UID
-        std::string pathStr;        // Email archive folder path     
+        std::string path;        // Email archive folder path     
     };
     
     //
@@ -54,7 +54,7 @@ namespace Pendulum_MailBox {
     
     struct ServerConnection {
         CIMAP server;                    // IMAP server connection
-        std::string reconnectMailBoxStr; // Reconnect select mailbox
+        std::string reconnectMailBox; // Reconnect select mailbox
         int connectCount { 0 };          // Connection count
         int retryCount;                  // Retry count
     };
@@ -76,8 +76,8 @@ namespace Pendulum_MailBox {
     // Return a vector of mailbox names to be processed
     //
     
-    std::vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const std::string& mailBoxListStr, 
-                                                 const std::string& ignoreListStr, bool bAllMailBoxes);
+    std::vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const std::string& mailBoxList, 
+                                                 const std::string& ignoreList, bool bAllMailBoxes);
 
     //
     // Return a vector of e-mail  UIDs to be archived (.eml file created).

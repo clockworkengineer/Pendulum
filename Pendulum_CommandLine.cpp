@@ -70,15 +70,15 @@ namespace Pendulum_CommandLine {
     static void addCommonOptions(po::options_description& commonOptions, PendulumOptions& argData) {
 
         commonOptions.add_options()
-                ("server,s", po::value<string>(&argData.serverURLStr)->required(), "IMAP Server URL and port")
-                ("user,u", po::value<string>(&argData.userNameStr)->required(), "Account username")
-                ("password,p", po::value<string>(&argData.userPasswordStr)->required(), "User password")
-                ("mailbox,m", po::value<string>(&argData.mailBoxListStr)->required(), "Mailbox name (or mailbox comma separated list)")
-                ("destination,d", po::value<string>(&argData.destinationFolderStr)->required(), "Destination folder for archived e-mail")
+                ("server,s", po::value<string>(&argData.serverURL)->required(), "IMAP Server URL and port")
+                ("user,u", po::value<string>(&argData.userName)->required(), "Account username")
+                ("password,p", po::value<string>(&argData.userPassword)->required(), "User password")
+                ("mailbox,m", po::value<string>(&argData.mailBoxList)->required(), "Mailbox name (or mailbox comma separated list)")
+                ("destination,d", po::value<string>(&argData.destinationFolder)->required(), "Destination folder for archived e-mail")
                 ("poll", po::value<int>(&argData.pollTime), "Poll time in minutes")
                 ("retry,r", po::value<int>(&argData.retryCount), "Server reconnect retry count")
-                ("log,l",po::value<string>(&argData.logFileNameStr), "Log file")
-                ("ignore,i",po::value<string>(&argData.ignoreListStr), "Ignore mailbox list")
+                ("log,l",po::value<string>(&argData.logFileName), "Log file")
+                ("ignore,i",po::value<string>(&argData.ignoreList), "Ignore mailbox list")
                 ("updates,u", "Search since last file archived.")
                 ("all,a", "Download files for all mailboxes.");
 
@@ -101,7 +101,7 @@ namespace Pendulum_CommandLine {
         po::options_description commandLine("Program Options");
         commandLine.add_options()
                 ("help", "Print help messages")
-                ("config,c", po::value<string>(&optionData.configFileNameStr), "Config File Name");
+                ("config,c", po::value<string>(&optionData.configFileName), "Config File Name");
 
         addCommonOptions(commandLine, optionData);
 

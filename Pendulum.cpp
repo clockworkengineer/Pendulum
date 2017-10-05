@@ -118,12 +118,12 @@ namespace Pendulum {
     // Exit with error message/status
     //
 
-    static void exitWithError(const string errMsgStr) {
+    static void exitWithError(const string errMsg) {
 
         // Closedown email, display error and exit.
 
         CIMAP::closedown();
-        cerr << errMsgStr << endl;
+        cerr << errMsg << endl;
         exit(EXIT_FAILURE);
 
     }
@@ -147,8 +147,8 @@ namespace Pendulum {
             // Output to log file ( CRedirect(std::cout) is the simplest solution). Once the try is exited
             // CRedirect object will be destroyed and cout restored.
 
-            if (!optionData.logFileNameStr.empty()) {
-                logFile.change(optionData.logFileNameStr, std::ios_base::out | std::ios_base::app);
+            if (!optionData.logFileName.empty()) {
+                logFile.change(optionData.logFileName, std::ios_base::out | std::ios_base::app);
                 cout << std::string(100, '=') << endl;;
             }
 
@@ -158,8 +158,8 @@ namespace Pendulum {
 
             // Set mail account user name and password
 
-            imapConnection.server.setServer(optionData.serverURLStr);
-            imapConnection.server.setUserAndPassword(optionData.userNameStr, optionData.userPasswordStr);
+            imapConnection.server.setServer(optionData.serverURL);
+            imapConnection.server.setUserAndPassword(optionData.userName, optionData.userPassword);
             
             // Set retry count
             
@@ -175,12 +175,12 @@ namespace Pendulum {
                 
                 // Reset reconnect mailbox to none
                 
-                imapConnection.reconnectMailBoxStr = "";
+                imapConnection.reconnectMailBox = "";
 
                 // Create mailbox list if doesn't exist
 
                 if (mailBoxList.empty()) {
-                    mailBoxList = fetchMailBoxList(imapConnection, optionData.mailBoxListStr, optionData.ignoreListStr, optionData.bAllMailBoxes);
+                    mailBoxList = fetchMailBoxList(imapConnection, optionData.mailBoxList, optionData.ignoreList, optionData.bAllMailBoxes);
                 }
                 
                 // Process mailboxes
@@ -189,18 +189,18 @@ namespace Pendulum {
                     
                     // Set mailbox to select on reconnect.
                     
-                    imapConnection.reconnectMailBoxStr = mailBoxEntry.nameStr;
+                    imapConnection.reconnectMailBox = mailBoxEntry.name;
                             
                     // Set mailbox archive folder
 
-                    if (mailBoxEntry.pathStr.empty()) {
-                        mailBoxEntry.pathStr = createMailboxFolder(optionData.destinationFolderStr, mailBoxEntry.nameStr);
+                    if (mailBoxEntry.path.empty()) {
+                        mailBoxEntry.path = createMailboxFolder(optionData.destinationFolder, mailBoxEntry.name);
                     }
                     
                      // If only updates specified find highest UID to search from
 
                     if (optionData.bOnlyUpdates && (imapConnection.connectCount==0)) {                       
-                        mailBoxEntry.searchUID = getNewestUID(mailBoxEntry.pathStr);
+                        mailBoxEntry.searchUID = getNewestUID(mailBoxEntry.path);
                     }
 
                     // Get vector of new mail UID(s)
@@ -214,7 +214,7 @@ namespace Pendulum {
                         for (auto uid : messageUID) {
                             pair<string, string> emailContents { fetchEmailContents(imapConnection, uid) };
                             if (emailContents.first.size() && emailContents.second.size()) {
-                                createEMLFile(emailContents, uid, mailBoxEntry.pathStr);
+                                createEMLFile(emailContents, uid, mailBoxEntry.path);
                             } else {
                                 cerr << "E-mail file not created as subject or contents empty" << endl;
                             }
@@ -229,7 +229,7 @@ namespace Pendulum {
 
                 // Disconnect from server
 
-                cout << "Disconnecting from server [" << optionData.serverURLStr << "]" << endl;
+                cout << "Disconnecting from server [" << optionData.serverURL << "]" << endl;
 
                 imapConnection.server.disconnect();
                 

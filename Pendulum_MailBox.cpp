@@ -72,15 +72,15 @@ namespace Pendulum_MailBox {
     // server disconnect or command error are also signaled by an exception.
     //
 
-    static CIMAPParse::COMMANDRESPONSE sendCommand(ServerConnection& imapConnection, const string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommand(ServerConnection& imapConnection, const string& command) {
 
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
         try {
             
-            string commandResponseStr { imapConnection.server.sendCommand(commandStr) };
-            if (commandResponseStr.size()) {
-                parsedResponse = CIMAPParse::parseResponse(commandResponseStr);
+            string commandResponse { imapConnection.server.sendCommand(command) };
+            if (commandResponse.size()) {
+                parsedResponse = CIMAPParse::parseResponse(commandResponse);
             }
        
         } catch (...) {
@@ -93,7 +93,7 @@ namespace Pendulum_MailBox {
         if (parsedResponse->bBYESent) {
             throw CIMAP::Exception("Received BYE from server: " + parsedResponse->errorMessage);
         } else if (parsedResponse->status != CIMAPParse::RespCode::OK) {
-            throw CIMAP::Exception(commandStr + ": " + parsedResponse->errorMessage);
+            throw CIMAP::Exception(command + ": " + parsedResponse->errorMessage);
         }
 
         return (parsedResponse);
@@ -108,11 +108,11 @@ namespace Pendulum_MailBox {
 
         serverConnect(imapConnection);
 
-        if (imapConnection.server.getConnectedStatus() && imapConnection.reconnectMailBoxStr.size()) {
+        if (imapConnection.server.getConnectedStatus() && imapConnection.reconnectMailBox.size()) {
             CIMAPParse::COMMANDRESPONSE parsedResponse;
-            parsedResponse = sendCommand(imapConnection, "SELECT " + imapConnection.reconnectMailBoxStr);
+            parsedResponse = sendCommand(imapConnection, "SELECT " + imapConnection.reconnectMailBox);
             if ((parsedResponse) && (parsedResponse->status == CIMAPParse::RespCode::OK)) {
-                cerr << "Reconnected to MailBox [" << imapConnection.reconnectMailBoxStr << "]" << endl;
+                cerr << "Reconnected to MailBox [" << imapConnection.reconnectMailBox << "]" << endl;
             }
         }
 
@@ -123,12 +123,12 @@ namespace Pendulum_MailBox {
     // and resend command even if it was successful.
     //
     
-    static CIMAPParse::COMMANDRESPONSE sendCommandRetry(ServerConnection& imapConnection, const string& commandStr) {
+    static CIMAPParse::COMMANDRESPONSE sendCommandRetry(ServerConnection& imapConnection, const string& command) {
         
         CIMAPParse::COMMANDRESPONSE parsedResponse;
 
         try {
-            parsedResponse = sendCommand(imapConnection, commandStr);
+            parsedResponse = sendCommand(imapConnection, command);
         } catch (...) {
             // If still connected  re-throw error as not connection related.
             if (imapConnection.server.getConnectedStatus()) {
@@ -142,7 +142,7 @@ namespace Pendulum_MailBox {
             if (!imapConnection.server.getConnectedStatus()) {
                 cerr << "Server Disconnect.\nTrying to reconnect ..." << endl;
                 serverReconnect(imapConnection);
-                parsedResponse = sendCommand(imapConnection, commandStr);
+                parsedResponse = sendCommand(imapConnection, command);
             }
         } catch (...) {
             throw;  // Signal reconnect/command failure.
@@ -202,22 +202,22 @@ namespace Pendulum_MailBox {
     // place into vector of mailbox name strings to be returned.
     //
 
-    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxListStr,  
-                           const std::string& ignoreListStr, bool bAllMailBoxes) {
+    vector<MailBoxDetails> fetchMailBoxList(ServerConnection& imapConnection, const string& mailBoxList,  
+                           const std::string& ignoreList, bool bAllMailBoxes) {
 
-        vector<MailBoxDetails> mailBoxList;
-        vector<string> ignoreList;
+        vector<MailBoxDetails> mailBoxesList;
+        vector<string> ignoreMailBoxesList;
 
         // Create mailbox ignore list
         
-        if (!ignoreListStr.empty()) { 
+        if (!ignoreList.empty()) { 
             
-            istringstream ignoreListStream { ignoreListStr };
+            istringstream ignoreListStream { ignoreList };
             
-            for (string ignoreMailboxStr; getline(ignoreListStream, ignoreMailboxStr, ',');) {
-                ignoreMailboxStr = ignoreMailboxStr.substr(ignoreMailboxStr.find_first_not_of(' '));
-                ignoreMailboxStr = ignoreMailboxStr.substr(0, ignoreMailboxStr.find_last_not_of(' ') + 1);
-                ignoreList.push_back(ignoreMailboxStr );
+            for (string ignoreMailbox; getline(ignoreListStream, ignoreMailbox, ',');) {
+                ignoreMailbox = ignoreMailbox.substr(ignoreMailbox.find_first_not_of(' '));
+                ignoreMailbox = ignoreMailbox.substr(0, ignoreMailbox.find_last_not_of(' ') + 1);
+                ignoreMailBoxesList.push_back(ignoreMailbox );
             } 
             
         }
@@ -235,9 +235,9 @@ namespace Pendulum_MailBox {
                 // Ignore mailbox with attribute no select or that is on ignore list
                 
                 for (auto& mailBoxEntry : parsedResponse->mailBoxList) {
-                    if ((std::find(ignoreList.begin(), ignoreList.end(), mailBoxEntry.mailBoxName) == ignoreList.end()) &&
+                    if ((std::find(ignoreMailBoxesList.begin(), ignoreMailBoxesList.end(), mailBoxEntry.mailBoxName) == ignoreMailBoxesList.end()) &&
                         (mailBoxEntry.attributes.find("\\Noselect") == string::npos)) {
-                        mailBoxList.push_back( { mailBoxEntry.mailBoxName, 0} );
+                        mailBoxesList.push_back( { mailBoxEntry.mailBoxName, 0} );
                     } else {
                         cout << "Ignoring mailbox [" << mailBoxEntry.mailBoxName << "]" << endl;                       
                     }
@@ -249,21 +249,21 @@ namespace Pendulum_MailBox {
             
             // Add mailbox list from config file or command line parameter
             
-            istringstream mailBoxStream { mailBoxListStr };
+            istringstream mailBoxStream { mailBoxList };
             
-            for (string mailBoxStr; getline(mailBoxStream, mailBoxStr, ',');) {
-                mailBoxStr = mailBoxStr.substr(mailBoxStr.find_first_not_of(' '));
-                mailBoxStr = mailBoxStr.substr(0, mailBoxStr.find_last_not_of(' ') + 1);
-                if (std::find(ignoreList.begin(), ignoreList.end(), mailBoxStr) == ignoreList.end()) {
-                    mailBoxList.push_back({ mailBoxStr, 0} );
+            for (string mailBox; getline(mailBoxStream, mailBox, ',');) {
+                mailBox = mailBox.substr(mailBox.find_first_not_of(' '));
+                mailBox = mailBox.substr(0, mailBox.find_last_not_of(' ') + 1);
+                if (std::find(ignoreMailBoxesList.begin(), ignoreMailBoxesList.end(), mailBox) == ignoreMailBoxesList.end()) {
+                    mailBoxesList.push_back({ mailBox, 0} );
                 } else {
-                    cout << "Ignoring mailbox [" << mailBoxStr << "]" << endl;
+                    cout << "Ignoring mailbox [" << mailBox << "]" << endl;
                 }
             }
             
         }
 
-        return (mailBoxList);
+        return (mailBoxesList);
 
     }
 
@@ -277,11 +277,11 @@ namespace Pendulum_MailBox {
         CIMAPParse::COMMANDRESPONSE parsedResponse;
         vector<uint64_t> messageID {};
 
-        cout << "MAIL BOX [" << mailBoxEntry.nameStr << "]" << endl;
+        cout << "MAIL BOX [" << mailBoxEntry.name << "]" << endl;
 
         // SELECT mailbox (ignore response)
 
-        parsedResponse = sendCommandRetry(imapConnection, "SELECT " + mailBoxEntry.nameStr);
+        parsedResponse = sendCommandRetry(imapConnection, "SELECT " + mailBoxEntry.name);
 
         // SEARCH for all or new e-mail messages
 
@@ -316,8 +316,8 @@ namespace Pendulum_MailBox {
 
     pair<string, string> fetchEmailContents(ServerConnection& imapConnection, uint64_t uid) {
 
-        string subjectStr;
-        string emailBodyStr;
+        string subject;
+        string emailBody;
         CIMAPParse::COMMANDRESPONSE parsedResponse;
         
         parsedResponse = sendCommandRetry(imapConnection, 
@@ -329,15 +329,15 @@ namespace Pendulum_MailBox {
                 cout << "EMAIL MESSAGE NO. [" << fetchEntry.index << "]" << endl;
                 for (auto& resp : fetchEntry.responseMap) {
                     if (resp.first.find("BODY[]") == 0) {
-                        emailBodyStr = std::move(resp.second);
+                        emailBody = std::move(resp.second);
                     } else if (resp.first.find("BODY[HEADER.FIELDS (SUBJECT)]") == 0) {
                         if (resp.second.find("Subject:") != string::npos) { // Contains "Subject:"
-                            subjectStr = resp.second.substr(8);
-                            subjectStr = CMIME::convertMIMEStringToASCII(subjectStr);
-                            if (subjectStr.length() > kMaxSubjectLine) { // Truncate for file name
-                                subjectStr = subjectStr.substr(0, kMaxSubjectLine);
+                            subject = resp.second.substr(8);
+                            subject = CMIME::convertMIMEStringToASCII(subject);
+                            if (subject.length() > kMaxSubjectLine) { // Truncate for file name
+                                subject = subject.substr(0, kMaxSubjectLine);
                             }
-                            for (auto &ch : subjectStr) { // Remove all but alpha numeric from subject
+                            for (auto &ch : subject) { // Remove all but alpha numeric from subject
                                 if (!isalnum(ch)) ch = ' ';
                             }
                         }
@@ -347,7 +347,7 @@ namespace Pendulum_MailBox {
             
         }
 
-        return (make_pair(subjectStr, emailBodyStr));
+        return (make_pair(subject, emailBody));
 
     }
 
