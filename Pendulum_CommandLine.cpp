@@ -32,7 +32,7 @@
 #include <iostream>
 
 //
-// Pendulum_CommandLine namespace
+// Pendulum command line processing
 //
 
 #include "Pendulum_CommandLine.hpp"

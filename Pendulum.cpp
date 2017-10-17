@@ -82,6 +82,7 @@
 #include "CRedirect.hpp"
 #include "CIMAP.hpp"
 #include "CIMAPParse.hpp"
+#include "CSocket.hpp"
 
 //
 // Boost file system
@@ -246,10 +247,12 @@ namespace Pendulum {
         //
         // Catch any errors
         //    
-
+ 
         } catch (const CIMAP::Exception &e) {
             exitWithError(e.what());
         } catch (const CIMAPParse::Exception &e) {
+            exitWithError(e.what());
+       } catch (const Antik::Network::CSocket::Exception &e) {
             exitWithError(e.what());
         } catch (const fs::filesystem_error & e) {
             exitWithError(string("BOOST file system exception: [") + e.what() + "]");
