@@ -90,7 +90,7 @@ namespace Pendulum_MailBox {
         // Report server disconnect or command error after command response 
         // successfully received and response parsed.
 
-        if (parsedResponse->bBYESent) {
+        if (parsedResponse->byeSent) {
             throw CIMAP::Exception("Received BYE from server: " + parsedResponse->errorMessage);
         } else if (parsedResponse->status != CIMAPParse::RespCode::OK) {
             throw CIMAP::Exception(command + ": " + parsedResponse->errorMessage);
