@@ -18,6 +18,7 @@
 // Dependencies: 
 // 
 // C11++              : Use of C11++ features.
+// Antik Classes      : CFile.
 // Boost              : File system, program option,.
 //
 
@@ -32,6 +33,12 @@
 #include <iostream>
 
 //
+// Antik Classes
+//
+
+#include "CFile.hpp"
+
+//
 // Pendulum command line processing
 //
 
@@ -41,8 +48,7 @@
 // Boost file system & program options
 //
 
-#include "boost/program_options.hpp" 
-#include <boost/filesystem.hpp>
+#include "boost/program_options.hpp"
 
 // =========
 // NAMESPACE
@@ -53,12 +59,11 @@ namespace Pendulum_CommandLine {
     // =======
     // IMPORTS
     // =======
-
-    using namespace std;
+    
+    using namespace Antik::File;
         
     namespace po = boost::program_options;
-    namespace fs = boost::filesystem;
-
+    
     // ===============
     // LOCAL FUNCTIONS
     // ===============
@@ -70,15 +75,15 @@ namespace Pendulum_CommandLine {
     static void addCommonOptions(po::options_description& commonOptions, PendulumOptions& argData) {
 
         commonOptions.add_options()
-                ("server,s", po::value<string>(&argData.serverURL)->required(), "IMAP Server URL and port")
-                ("user,u", po::value<string>(&argData.userName)->required(), "Account username")
-                ("password,p", po::value<string>(&argData.userPassword)->required(), "User password")
-                ("mailbox,m", po::value<string>(&argData.mailBoxList)->required(), "Mailbox name (or mailbox comma separated list)")
-                ("destination,d", po::value<string>(&argData.destinationFolder)->required(), "Destination folder for archived e-mail")
+                ("server,s", po::value<std::string>(&argData.serverURL)->required(), "IMAP Server URL and port")
+                ("user,u", po::value<std::string>(&argData.userName)->required(), "Account username")
+                ("password,p", po::value<std::string>(&argData.userPassword)->required(), "User password")
+                ("mailbox,m", po::value<std::string>(&argData.mailBoxList)->required(), "Mailbox name (or mailbox comma separated list)")
+                ("destination,d", po::value<std::string>(&argData.destinationFolder)->required(), "Destination folder for archived e-mail")
                 ("poll", po::value<int>(&argData.pollTime), "Poll time in minutes")
                 ("retry,r", po::value<int>(&argData.retryCount), "Server reconnect retry count")
-                ("log,l",po::value<string>(&argData.logFileName), "Log file")
-                ("ignore,i",po::value<string>(&argData.ignoreList), "Ignore mailbox list")
+                ("log,l",po::value<std::string>(&argData.logFileName), "Log file")
+                ("ignore,i",po::value<std::string>(&argData.ignoreList), "Ignore mailbox list")
                 ("updates,u", "Search since last file archived.")
                 ("all,a", "Download files for all mailboxes.");
 
@@ -101,7 +106,7 @@ namespace Pendulum_CommandLine {
         po::options_description commandLine("Program Options");
         commandLine.add_options()
                 ("help", "Print help messages")
-                ("config,c", po::value<string>(&optionData.configFileName), "Config File Name");
+                ("config,c", po::value<std::string>(&optionData.configFileName), "Config File Name");
 
         addCommonOptions(commandLine, optionData);
 
@@ -120,13 +125,13 @@ namespace Pendulum_CommandLine {
             // Display options and exit with success
 
             if (vm.count("help")) {
-                cout << "Pendulum Email Archiver" << endl << commandLine << endl;
+                std::cout << "Pendulum Email Archiver" << std::endl << commandLine << std::endl;
                 exit(EXIT_SUCCESS);
             }
 
             if (vm.count("config")) {
-                if (fs::exists(vm["config"].as<string>().c_str())) {
-                    ifstream ifs{vm["config"].as<string>().c_str()};
+                if (CFile::exists(vm["config"].as<std::string>())) {
+                    std::ifstream ifs{vm["config"].as<std::string>()};
                     if (ifs) {
                         po::store(po::parse_config_file(ifs, configFile), vm);
                     }
@@ -150,7 +155,7 @@ namespace Pendulum_CommandLine {
             po::notify(vm);
 
         } catch (po::error& e) {
-            cerr << "Pendulum Error: " << e.what() << "\n" << endl;
+            std::cerr << "Pendulum Error: " << e.what() << "\n" << std::endl;
             exit(EXIT_FAILURE);
         }
 

@@ -18,7 +18,7 @@
 // Dependencies:
 // 
 // C11++              : Use of C11++ features.
-// Boost              : File system, iterator.
+// Antik Classes      : CPath, CFile.
 //
 
 // =============
@@ -34,18 +34,18 @@
 #include <sstream>
 
 //
+// Antik Classes
+//
+
+#include "CFile.hpp"
+#include "CPath.hpp"
+
+//
 // Pendulum and Pendulum File
 //
 
 #include "Pendulum.hpp"
 #include "Pendulum_File.hpp"
-
-//
-// Boost file system & range iterator
-//
-
-#include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
 
 // =========
 // NAMESPACE
@@ -57,10 +57,8 @@ namespace Pendulum_File {
     // IMPORTS
     // =======
 
-    using namespace std;
-    
-    namespace fs = boost::filesystem;
-    
+    using namespace Antik::File;
+
     // ===============
     // LOCAL FUNCTIONS
     // ===============
@@ -73,9 +71,9 @@ namespace Pendulum_File {
     // Create destination for mailbox archive
     //
 
-    std::string createMailboxFolder(const string& destFolder, const string& mailBoxName) {
+    std::string createMailboxFolder(const std::string& destFolder, const std::string& mailBoxName) {
 
-        string mailBoxFolder { mailBoxName };
+        std::string mailBoxFolder { mailBoxName };
 
         // Clear any quotes from mailbox name for folder name
 
@@ -84,15 +82,15 @@ namespace Pendulum_File {
 
         // Create mailbox destination folder
 
-        fs::path mailBoxPath {destFolder };
+        CPath mailBoxPath {destFolder };
         
-        mailBoxPath /= mailBoxFolder;
-        if (!fs::exists(mailBoxPath)) {
-            cout << "Creating destination folder = [" << mailBoxPath.native() << "]" << endl;
-            fs::create_directories(mailBoxPath);
+        mailBoxPath.join(mailBoxFolder);
+        if (!CFile::exists(mailBoxPath)) {
+            std::cout << "Creating destination folder = [" << mailBoxPath.toString() << "]" << std::endl;
+            CFile::createDirectory(mailBoxPath);
         }
         
-        return(mailBoxPath.string());
+        return(mailBoxPath.toString());
         
     }
     
@@ -100,22 +98,22 @@ namespace Pendulum_File {
     // Create .eml for downloaded email.
     //
 
-    void createEMLFile(const pair<string, string>& emailContents, uint64_t uid, const string& destFolder) {
+    void createEMLFile(const std::pair<std::string, std::string>& emailContents, uint64_t uid, const std::string& destFolder) {
 
         if (!emailContents.second.empty()) {
-            fs::path fullFilePath { destFolder };
-            fullFilePath /= "(" + to_string(uid) + ") " + emailContents.first + Pendulum::kEMLFileExt;
-            if (!fs::exists(fullFilePath)) {
-                istringstream emailBodyStream { emailContents.second };
-                ofstream emlFileStream { fullFilePath.string(), ios::binary };
+            CPath fullFilePath { destFolder };
+            fullFilePath.join("(" + std::to_string(uid) + ") " + emailContents.first + Pendulum::kEMLFileExt);
+            if (!CFile::exists(fullFilePath)) {
+                std::istringstream emailBodyStream { emailContents.second };
+                std::ofstream emlFileStream { fullFilePath.toString(), std::ios::binary };
                 if (emlFileStream.is_open()) {
-                    cout << "Creating [" << fullFilePath.native() << "]" << endl;
-                    for (string line; getline(emailBodyStream, line, '\n');) {
+                    std::cout << "Creating [" << fullFilePath.toString() << "]" << std::endl;
+                    for (std::string line; getline(emailBodyStream, line, '\n');) {
                         line.push_back('\n');
                         emlFileStream.write(&line[0], line.length());
                     }
                 } else {
-                    cerr << "Failed to create file [" << fullFilePath << "]" << endl;
+                    std::cerr << "Failed to create file [" << fullFilePath.toString() << "]" << std::endl;
                 }
             }
         }
@@ -127,17 +125,17 @@ namespace Pendulum_File {
     // prefix; get the Index from this.
     //
 
-    uint64_t getNewestUID(const string& destFolder) {
+    uint64_t getNewestUID(const std::string& destFolder) {
 
-        if (fs::exists(destFolder) && fs::is_directory(destFolder)) {
+        if (CFile::exists(destFolder) && CFile::isDirectory(destFolder)) {
 
             uint64_t highestIndex { 1 };
             uint64_t currentIndex { 0 };
-            fs::path destPath { destFolder };
+            CPath destPath { destFolder };
             
-            for (auto& entry : boost::make_iterator_range(fs::directory_iterator(destPath),{})) {
-                if (fs::is_regular_file(entry.status()) && (entry.path().extension().compare(Pendulum::kEMLFileExt) == 0)) {
-                    std::string uid { entry.path().filename().string()};
+            for (auto& file : CFile::directoryContentsList(destPath)) {
+                if (CFile::isFile(file) && ( CPath(file).extension().compare(Pendulum::kEMLFileExt) == 0)) {
+                    std::string uid { CPath(file).fileName()};
                     uid = uid.substr(uid.find_first_of(('('))+1);
                     uid = uid.substr(0, uid.find_first_of((')')));
                     currentIndex = strtoull(uid.c_str(), nullptr, 10);

@@ -48,9 +48,8 @@
 // Dependencies: 
 // 
 // C11++              : Use of C11++ features.
-// Antikythera Classes: CMIME, CIMAP, CIMAPParse.
+// Antik Classes      : CMIME, CIMAP, CIMAPParse, CFile, CSocket.
 // Linux              : Target platform
-// Boost              : File system, program option, iterator.
 //
 
 // =============
@@ -67,6 +66,16 @@
 #include <stdexcept>
 
 //
+// Antik Classes
+//
+
+#include "CRedirect.hpp"
+#include "CIMAP.hpp"
+#include "CIMAPParse.hpp"
+#include "CSocket.hpp"
+#include "CFile.hpp"
+
+//
 // Program components.
 //
 
@@ -74,21 +83,6 @@
 #include "Pendulum_CommandLine.hpp"
 #include "Pendulum_MailBox.hpp"
 #include "Pendulum_File.hpp"
-
-//
-// Antikythera Classes
-//
-
-#include "CRedirect.hpp"
-#include "CIMAP.hpp"
-#include "CIMAPParse.hpp"
-#include "CSocket.hpp"
-
-//
-// Boost file system
-//
-
-#include <boost/filesystem.hpp>
 
 // =========
 // NAMESPACE
@@ -100,16 +94,13 @@ namespace Pendulum {
     // IMPORTS
     // =======
 
-    using namespace std;
-
     using namespace Pendulum_CommandLine;
     using namespace Pendulum_MailBox;
     using namespace Pendulum_File;
 
     using namespace Antik::IMAP;
     using namespace Antik::Util;
-
-    namespace fs = boost::filesystem;
+    using namespace Antik::File;
 
     // ===============
     // LOCAL FUNCTIONS
@@ -119,12 +110,12 @@ namespace Pendulum {
     // Exit with error message/status
     //
 
-    static void exitWithError(const string errMsg) {
+    static void exitWithError(const std::string errMsg) {
 
         // Closedown email, display error and exit.
 
         CIMAP::closedown();
-        cerr << errMsg << endl;
+        std::cerr << errMsg << std::endl;
         exit(EXIT_FAILURE);
 
     }
@@ -133,24 +124,24 @@ namespace Pendulum {
     // PUBLIC FUNCTIONS
     // ================
 
-    int archiveEmail(int argc, char** argv) {
+    void archiveEmail(int argc, char** argv) {
 
         try {
 
             CRedirect logFile{std::cout};
             ServerConnection imapConnection;
-            vector<MailBoxDetails> mailBoxList;
+            std::vector<MailBoxDetails> mailBoxList;
              
             // Setup option data
             
             PendulumOptions optionData { fetchCommandLineOptions(argc, argv) };
 
             // Output to log file ( CRedirect(std::cout) is the simplest solution). Once the try is exited
-            // CRedirect object will be destroyed and cout restored.
+            // CRedirect object will be destroyed and std::cout restored.
 
             if (!optionData.logFileName.empty()) {
                 logFile.change(optionData.logFileName, std::ios_base::out | std::ios_base::app);
-                cout << std::string(100, '=') << endl;;
+                std::cout << std::string(100, '=') << std::endl;
             }
 
             // Initialize CIMAP internals
@@ -170,7 +161,7 @@ namespace Pendulum {
 
                 // Connect
 
-                cout << "Connecting to server [" << imapConnection.server.getServer() << "][" << imapConnection.connectCount << "]" << endl;
+                std::cout << "Connecting to server [" << imapConnection.server.getServer() << "][" << imapConnection.connectCount << "]" << std::endl;
 
                 serverConnect(imapConnection);
                 
@@ -206,31 +197,31 @@ namespace Pendulum {
 
                     // Get vector of new mail UID(s)
 
-                    vector<uint64_t> messageUID { fetchMailBoxMessages(imapConnection, mailBoxEntry) };
+                    std::vector<uint64_t> messageUID { fetchMailBoxMessages(imapConnection, mailBoxEntry) };
 
                     // If messages found then create new EML files.
 
                     if (messageUID.size()) {
-                        cout << "Messages found = " << messageUID.size() << endl;
+                        std::cout << "Messages found = " << messageUID.size() << std::endl;
                         for (auto uid : messageUID) {
-                            pair<string, string> emailContents { fetchEmailContents(imapConnection, uid) };
+                            std::pair<std::string, std::string> emailContents { fetchEmailContents(imapConnection, uid) };
                             if (emailContents.first.size() && emailContents.second.size()) {
                                 createEMLFile(emailContents, uid, mailBoxEntry.path);
                             } else {
-                                cerr << "E-mail file not created as subject or contents empty" << endl;
+                                std::cerr << "E-mail file not created as subject or contents empty" << std::endl;
                             }
                             
                         }
                         mailBoxEntry.searchUID = messageUID.back(); // Update search UID
                     } else {
-                        cout << "No messages found." << endl;
+                        std::cout << "No messages found." << std::endl;
                     }
 
                 }
 
                 // Disconnect from server
 
-                cout << "Disconnecting from server [" << optionData.serverURL << "]" << endl;
+                std::cout << "Disconnecting from server [" << optionData.serverURL << "]" << std::endl;
 
                 imapConnection.server.disconnect();
                 
@@ -254,10 +245,10 @@ namespace Pendulum {
             exitWithError(e.what());
        } catch (const Antik::Network::CSocket::Exception &e) {
             exitWithError(e.what());
-        } catch (const fs::filesystem_error & e) {
-            exitWithError(string("BOOST file system exception: [") + e.what() + "]");
-        } catch (const exception & e) {
-            exitWithError(string("Standard exception: [") + e.what() + "]");
+        } catch (const CFile::Exception & e) {
+            exitWithError(e.what());
+        } catch (const std::exception & e) {
+            exitWithError(e.what());
         }
 
         // IMAP closedown
