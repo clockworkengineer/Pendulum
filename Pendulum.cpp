@@ -112,9 +112,8 @@ namespace Pendulum {
 
     static void exitWithError(const std::string errMsg) {
 
-        // Closedown email, display error and exit.
+        // Display error and exit.
 
-        CIMAP::closedown();
         std::cerr << errMsg << std::endl;
         exit(EXIT_FAILURE);
 
@@ -143,10 +142,6 @@ namespace Pendulum {
                 logFile.change(optionData.logFileName, std::ios_base::out | std::ios_base::app);
                 std::cout << std::string(100, '=') << std::endl;
             }
-
-            // Initialize CIMAP internals
-
-            CIMAP::init();
 
             // Set mail account user name and password
 
@@ -239,21 +234,10 @@ namespace Pendulum {
         // Catch any errors
         //    
  
-        } catch (const CIMAP::Exception &e) {
-            exitWithError(e.what());
-        } catch (const CIMAPParse::Exception &e) {
-            exitWithError(e.what());
-       } catch (const Antik::Network::CSocket::Exception &e) {
-            exitWithError(e.what());
-        } catch (const CFile::Exception & e) {
-            exitWithError(e.what());
         } catch (const std::exception & e) {
             exitWithError(e.what());
         }
 
-        // IMAP closedown
-
-        CIMAP::closedown();
 
     }
 

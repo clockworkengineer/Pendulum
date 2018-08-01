@@ -131,9 +131,9 @@ namespace Pendulum_CommandLine {
 
             if (vm.count("config")) {
                 if (CFile::exists(vm["config"].as<std::string>())) {
-                    std::ifstream ifs{vm["config"].as<std::string>()};
-                    if (ifs) {
-                        po::store(po::parse_config_file(ifs, configFile), vm);
+                    std::ifstream configFileStream{vm["config"].as<std::string>()};
+                    if (configFileStream) {
+                        po::store(po::parse_config_file(configFileStream, configFile), vm);
                     }
                 } else {
                     throw po::error("Specified config file does not exist.");

@@ -28,7 +28,7 @@ namespace Pendulum {
     // Main processing functionality (archive e-mail).
     //
     
-    int archiveEmail(int argc, char** argv);
+    void archiveEmail(int argc, char** argv);
 
 }
 #endif /* PENDULUM_HPP */
