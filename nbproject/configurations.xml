@@ -56,6 +56,18 @@
             <linkerOptionItem>`pkg-config --libs libcurl`</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../Antik"
+                        CT="3"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../Antik"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libantik.a">
+          </makeArtifact>
+        </requiredProjects>
       </compileType>
       <item path="Pendulum.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -111,6 +123,18 @@
             <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
           </linkerLibItems>
         </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../Antik"
+                        CT="3"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../Antik"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libantik.a">
+          </makeArtifact>
+        </requiredProjects>
       </compileType>
       <item path="Pendulum.cpp" ex="false" tool="1" flavor2="0">
       </item>

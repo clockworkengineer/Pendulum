@@ -89,6 +89,7 @@ ${OBJECTDIR}/Pendulum_MailBox.o: Pendulum_MailBox.cpp
 
 # Subprojects
 .build-subprojects:
+	cd ../Antik && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -96,6 +97,7 @@ ${OBJECTDIR}/Pendulum_MailBox.o: Pendulum_MailBox.cpp
 
 # Subprojects
 .clean-subprojects:
+	cd ../Antik && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
