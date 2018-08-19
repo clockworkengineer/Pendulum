@@ -43,7 +43,7 @@ ConnectionDialog::ConnectionDialog(const QString& connectionName, QWidget *paren
     connect (&this->pendulum, SIGNAL(readyReadStandardError()), this, SLOT(processError()));
     connect (&this->pendulum, SIGNAL(finished(int)), this, SLOT(processFinished(int)));
 
-    pendulum.start("/home/robt/NetBeansProjects/Pendulum/dist/Debug/GNU-Linux/pendulum", args);
+    pendulum.start("/home/robt/Projects/NetBeansProjects/Pendulum/dist/Debug/GNU-Linux/pendulum", args);
 
 }
 
@@ -84,6 +84,8 @@ void ConnectionDialog::processError()
 
 void ConnectionDialog::processFinished(int exitCode)
 {
+
+    Q_UNUSED(exitCode);
 
     this->close();
 

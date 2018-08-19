@@ -143,6 +143,8 @@ void PendulumMainWindow::on_connect_clicked()
 void PendulumMainWindow::on_connectionList_clicked(const QModelIndex &index)
 {
 
+    Q_UNUSED(index);
+
     ui->editConnection->setEnabled(true);
     ui->deleteConnection->setEnabled(true);
     ui->connect->setEnabled(true);
@@ -151,6 +153,9 @@ void PendulumMainWindow::on_connectionList_clicked(const QModelIndex &index)
 
 void PendulumMainWindow::on_connectionList_doubleClicked(const QModelIndex &index)
 {
+
+    Q_UNUSED(index);
+
     on_connect_clicked();
 
 }

@@ -6,6 +6,8 @@
 
 QT       += core gui
 
+CONFIG += c++11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QtPendulum
@@ -26,15 +28,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         pendulummainwindow.cpp \
-    connectiondetailsdialog.cpp \
-    connectiondialog.cpp
+        connectiondetailsdialog.cpp \
+        connectiondialog.cpp
 
 HEADERS += \
         pendulummainwindow.h \
-    connectiondetailsdialog.h \
-    connectiondialog.h
+        connectiondetailsdialog.h \
+        connectiondialog.h
 
 FORMS += \
         pendulummainwindow.ui \
-    connectiondetailsdialog.ui \
-    connectiondialog.ui
+        connectiondetailsdialog.ui \
+        connectiondialog.ui
