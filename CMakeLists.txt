@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-set(PROGRAM_NAME "pendulum")
-set(PROGRAM_VERSION 0.1.0)
-
-project(${PROGRAM_NAME} VERSION ${PROGRAM_VERSION} DESCRIPTION "E-mail Archive Program")
+project("pendulum" VERSION 0.1.0 DESCRIPTION "E-mail Archive Program")
 
 # Build Antik library
 
@@ -16,10 +13,10 @@ file(GLOB PROGRAM_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" )
 
 # Pendulum target
 
-add_executable(${PROGRAM_NAME} ${PROGRAM_SOURCES} )
-target_include_directories(${PROGRAM_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROGRAM_NAME} antik)
+add_executable(${PROJECT_NAME} ${PROGRAM_SOURCES} )
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${PROJECT_NAME} antik)
 
 # Install Pendulum
 
-install(TARGETS ${PROGRAM_NAME} DESTINATION bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
