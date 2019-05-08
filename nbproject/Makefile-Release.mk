@@ -45,8 +45,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=
-CXXFLAGS=
+CCFLAGS=-Wall -Werror -std=c++17
+CXXFLAGS=-Wall -Werror -std=c++17
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -70,22 +70,22 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/pendulum: ${OBJECTFILES}
 ${OBJECTDIR}/Pendulum.o: Pendulum.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl` -std=c++11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum.o Pendulum.cpp
+	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum.o Pendulum.cpp
 
 ${OBJECTDIR}/Pendulum_CommandLine.o: Pendulum_CommandLine.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl` -std=c++11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum_CommandLine.o Pendulum_CommandLine.cpp
+	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum_CommandLine.o Pendulum_CommandLine.cpp
 
 ${OBJECTDIR}/Pendulum_File.o: Pendulum_File.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl` -std=c++11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum_File.o Pendulum_File.cpp
+	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum_File.o Pendulum_File.cpp
 
 ${OBJECTDIR}/Pendulum_MailBox.o: Pendulum_MailBox.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl` -std=c++11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum_MailBox.o Pendulum_MailBox.cpp
+	$(COMPILE.cc) -O2 -I../Antik/include -I../Antik/classes/implementation `pkg-config --cflags libcurl` `pkg-config --cflags libcurl` `pkg-config --cflags openssl`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pendulum_MailBox.o Pendulum_MailBox.cpp
 
 # Subprojects
 .build-subprojects:

@@ -327,7 +327,7 @@ namespace Pendulum_MailBox {
                 std::cout << "EMAIL MESSAGE NO. [" << fetchEntry.index << "]" << std::endl;
                 for (auto& resp : fetchEntry.responseMap) {
                     if (resp.first.find("BODY[]") == 0) {
-                        emailBody = std::move(resp.second);
+                        emailBody = resp.second;
                     } else if (resp.first.find("BODY[HEADER.FIELDS (SUBJECT)]") == 0) {
                         if (resp.second.find("Subject:") != std::string::npos) { // Contains "Subject:"
                             subject = resp.second.substr(8);

@@ -63,7 +63,7 @@ namespace Pendulum_MailBox {
     // Maximum subject line to take in file name
     //
 
-    constexpr const int kMaxSubjectLine = 80;
+    constexpr int kMaxSubjectLine = 80;
     
     
     //

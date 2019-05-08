@@ -22,7 +22,7 @@ namespace Pendulum {
     // .eml file extention
     //
 
-    constexpr const char *kEMLFileExt{".eml"};
+    constexpr char const *kEMLFileExt{".eml"};
     
     //
     // Main processing functionality (archive e-mail).
