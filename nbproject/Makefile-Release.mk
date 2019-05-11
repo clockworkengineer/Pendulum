@@ -14,14 +14,14 @@ GREP=grep
 NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=gcc
-CCC=g++
-CXX=g++
+CC=clang
+CCC=clang++
+CXX=clang++
 FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-Linux
+CND_PLATFORM=CLang-Linux
 CND_DLIB_EXT=so
 CND_CONF=Release
 CND_DISTDIR=dist
@@ -45,8 +45,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-Wall -Werror -std=c++17
-CXXFLAGS=-Wall -Werror -std=c++17
+CCFLAGS=-Wall -Werror -std=c++17 -fPIC
+CXXFLAGS=-Wall -Werror -std=c++17 -fPIC
 
 # Fortran Compiler Flags
 FFLAGS=

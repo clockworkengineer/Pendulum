@@ -7,21 +7,21 @@ CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
 # Debug configuration
-CND_PLATFORM_Debug=GNU-Linux
-CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-Linux
+CND_PLATFORM_Debug=CLang-Linux
+CND_ARTIFACT_DIR_Debug=dist/Debug/CLang-Linux
 CND_ARTIFACT_NAME_Debug=pendulum
-CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/pendulum
-CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
+CND_ARTIFACT_PATH_Debug=dist/Debug/CLang-Linux/pendulum
+CND_PACKAGE_DIR_Debug=dist/Debug/CLang-Linux/package
 CND_PACKAGE_NAME_Debug=pendulum.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/pendulum.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/CLang-Linux/package/pendulum.tar
 # Release configuration
-CND_PLATFORM_Release=GNU-Linux
-CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux
+CND_PLATFORM_Release=CLang-Linux
+CND_ARTIFACT_DIR_Release=dist/Release/CLang-Linux
 CND_ARTIFACT_NAME_Release=pendulum
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/pendulum
-CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux/package
+CND_ARTIFACT_PATH_Release=dist/Release/CLang-Linux/pendulum
+CND_PACKAGE_DIR_Release=dist/Release/CLang-Linux/package
 CND_PACKAGE_NAME_Release=pendulum.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/pendulum.tar
+CND_PACKAGE_PATH_Release=dist/Release/CLang-Linux/package/pendulum.tar
 #
 # include compiler specific variables
 #

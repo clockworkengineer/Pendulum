@@ -98,11 +98,12 @@
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
+          <commandlineTool>clang++</commandlineTool>
           <incDir>
             <pElem>../Antik/include</pElem>
             <pElem>../Antik/classes/implementation</pElem>
           </incDir>
-          <commandLine>-Wall -Werror -std=c++17</commandLine>
+          <commandLine>-Wall -Werror -std=c++17 -fPIC</commandLine>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
