@@ -1,4 +1,2 @@
-/_build/
+/.vscode/
 /build/
-/dist/
-/nbproject/private/

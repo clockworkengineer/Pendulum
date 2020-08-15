@@ -1,14 +1,3 @@
-/*
- * File:   Pendulum_File.hpp
- * 
- * Author: Robert Tizzard
- *
- * Created on Apil 10, 2017, 2:34 PM
- * 
- * Copyright 2017.
- * 
- */
-
 #ifndef PENDULUM_FILE_HPP
 #define PENDULUM_FILE_HPP
 

@@ -1,15 +1,3 @@
-#include "HOST.hpp"
-/*
- * File:   Pendulum_MailBox.cpp
- * 
- * Author: Robert Tizzard
- *
- * Created on Apil 10, 2017, 2:34 PM
- * 
- * Copyright 2017.
- * 
- */
-
 //
 // Module: Pendulum_MailBox
 //
@@ -235,7 +223,7 @@ namespace Pendulum_MailBox {
                 for (auto& mailBoxEntry : parsedResponse->mailBoxList) {
                     if ((std::find(ignoreMailBoxesList.begin(), ignoreMailBoxesList.end(), mailBoxEntry.mailBoxName) == ignoreMailBoxesList.end()) &&
                         (mailBoxEntry.attributes.find("\\Noselect") == std::string::npos)) {
-                        mailBoxesList.push_back( { mailBoxEntry.mailBoxName, 0} );
+                        mailBoxesList.push_back( { mailBoxEntry.mailBoxName, 0, ""} );
                     } else {
                         std::cout << "Ignoring mailbox [" << mailBoxEntry.mailBoxName << "]" << std::endl;                       
                     }
@@ -253,7 +241,7 @@ namespace Pendulum_MailBox {
                 mailBox = mailBox.substr(mailBox.find_first_not_of(' '));
                 mailBox = mailBox.substr(0, mailBox.find_last_not_of(' ') + 1);
                 if (std::find(ignoreMailBoxesList.begin(), ignoreMailBoxesList.end(), mailBox) == ignoreMailBoxesList.end()) {
-                    mailBoxesList.push_back({ mailBox, 0} );
+                    mailBoxesList.push_back({ mailBox, 0, ""} );
                 } else {
                     std::cout << "Ignoring mailbox [" << mailBox << "]" << std::endl;
                 }
